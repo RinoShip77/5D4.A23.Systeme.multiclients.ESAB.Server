@@ -37,7 +37,19 @@ class ExplorationsRoutes {
         } catch (error) {
           return next(error);
         }
-    }  
+    } 
+    
+    // Création d'une exploration
+    async post(req, res, next) {
+        try {
+            let exploration = await ExplorationRepository.create(req.body);
+            exploration = exploration.toObject({getters:false, virtuals:false});
+            exploration = ExplorationRepository.transform(exploration);
+            res.status(201).json({explorer, tokens});
+        } catch(err) {
+            return next(err);
+        }
+    }
 }
 
 new ExplorationsRoutes();
