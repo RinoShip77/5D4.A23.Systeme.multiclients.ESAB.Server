@@ -42,12 +42,12 @@ class ExplorersRoutes {
     }
 
     // Déconnexion d'un explorer (Blacklist de son token et redirection vers la page de connexion)
-    logout(req, res) {
+    async logout(req, res) {
 
         // Vérifier ce qui est stocké, supposer avoir stocké Ce qui se trouve après Bearer donc le token
         const tokenToInvalidate = req.headers.authorization.split(' ')[1];
 
-        BlacklistedJWTRepository.create(tokenToInvalidate);
+        await BlacklistedJWTRepository.create(tokenToInvalidate);
 
         res.status(200).json({ message: 'Logged out successfully' });
         res.redirect('/login'); // TODO: !!! Redirection au Login à VALIDER !!!
@@ -64,7 +64,6 @@ class ExplorersRoutes {
         } catch(err) {
             return next(err);
         }
-
     }
 
 }
