@@ -3,7 +3,7 @@ import paginate from 'express-paginate';
 import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
 
-import explorationRepository from "../repositories/exploration.repository.js"
+import ExplorationRepository from "../repositories/exploration.repository.js"
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ class ExplorationsRoutes {
     
           const idExploration = req.params.idExploration;
     
-          let Exploration = await explorationRepository.retrieveById(idExploration);
+          let Exploration = await ExplorationRepository.retrieveById(idExploration);
     
           if (!Exploration)
             return next(HttpError.NotFound(`Le client avec l'id "${idExploration}" n'existe pas!`));
