@@ -6,7 +6,9 @@ import database from './core/database.js';
 import errors from './core/errors.js';
 
 //import routes
-
+import AlliesRoutes from './routes/accounts.routes.js';
+import ExplorationsRoutes from './routes/accounts.routes.js';
+import ExplorersRoutes from './routes/accounts.routes.js';
 
 const app = express();
 
@@ -25,6 +27,10 @@ const limiter = expressRateLimit(
     }
 );
 app.use(limiter);
+
+app.use('/allies', AlliesRoutes);
+app.use('/explorations', ExplorationsRoutes);
+app.use('/explorers', ExplorersRoutes);
 
 app.use(errors);
 
