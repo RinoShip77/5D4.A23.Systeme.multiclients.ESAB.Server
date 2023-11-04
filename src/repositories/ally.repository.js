@@ -10,6 +10,13 @@ class AllyRepository {
         return retrieveQuery;
     }
 
+    retrieveAll(idExplorer)
+    {
+        const retrieveQuery = Ally.findAll(idExplorer);
+        
+        return retrieveQuery;
+    }
+
 }
 
 export default new AllyRepository();

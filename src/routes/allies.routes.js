@@ -4,13 +4,14 @@ import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
 
 import AllyRepository from "../repositories/ally.repository.js"
+import allyRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
 class AlliesRoutes {
     constructor() {
-        router.get('/', paginate.middleware(20, 40), this.getAll);
-        router.get('/:idAlly', this.getOne);
+        router.get('/:idExplorer/allies', paginate.middleware(20, 40), this.getAll);
+        router.get('/:idAlly/:idAlly', this.getOne);
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -34,6 +35,39 @@ class AlliesRoutes {
           // ally = AllyRepository.transform(ally, retrieveOptions);
     
           res.json(ally).status(200);
+        } catch (error) {
+          return next(error);
+        }
+    }  
+    
+    // Récupérer les exporations d'un user
+    async getAll(req, res, next) {
+        //Pour la pagination
+        //const retrieveOptions = {
+        //  skip: req.skip,
+        //  limit: req.query.limit
+        //};
+
+        try {
+          
+          const idExplorer = req.params.idExplorer;
+    
+          const allies = AllyRepository.retrieveAll(idExplorer);
+
+          //Pour la pagination
+          //const pageCount = Math.ceil(itemsCount / req.query.limit);
+          //const hasNextPage = paginate.hasNextPages(req)(pageCount);
+          //const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
+
+          allies = allies.map(a => {
+            a = a.toObject({getters:false, virtuals:false});
+            a = ordersRepository.transform(a);
+            return a;
+          });
+    
+          //retourne les allies
+          res.status(200).json(allies);
+    
         } catch (error) {
           return next(error);
         }

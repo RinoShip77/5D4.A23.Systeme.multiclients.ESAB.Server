@@ -13,7 +13,6 @@ const router = express.Router();
 
 class ExplorersRoutes {
     constructor() {
-        router.get('/', paginate.middleware(20, 40), this.getAll);
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
         router.get('/:idExplorer', this.getOne);
         // router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
@@ -21,9 +20,10 @@ class ExplorersRoutes {
         router.post('/actions/logout', this.logout)
       }
 
-      // Route pour la connexion
-      async login(req, res, next) {
+    // Route pour la connexion
+    async login(req, res, next) {
         const { email, username, password } = req.body;
+
         if((email && username) || email === "" || username === "") {
             return next(HttpError.BadRequest(''));
         }
@@ -41,6 +41,27 @@ class ExplorersRoutes {
         }
     }
 
+    // Route pour la connexion
+    async getOne(req, res, next) {
+        try {
+        const idExplorer = req.params.idExplorer;
+
+        let explorer = await ExplorerRepository.retrieveById(idExplorer);
+
+        if (!explorer)
+        {
+            return next(HttpError.NotFound(`Il n'y a pas d'explorateur avec l'id :"${idExplorer}"`));
+        }
+    
+        explorer = ally.toObject({ getters: false, virtuals: true });
+
+        res.json(explorer).status(200);
+        } catch (err)
+        {
+            return next(error);
+        }
+    }
+
     // Déconnexion d'un explorer (Blacklist de son token et redirection vers la page de connexion)
     async logout(req, res) {
 
@@ -55,8 +76,30 @@ class ExplorersRoutes {
 
     // Création d'un explorer
     async post(req, res, next) {
+        const newExplorer = req.body;
+
+        let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
+        let usernameSearch = await ExplorerRepository.retrieveByUsername(newExplorer.username);
+
+        if(emailSearch.length)
+        {
+            return next(HttpError.Conflict("L'addresse email existe déja dans la base de données."));
+        }
+
+        if(usernameSearch.length)
+        {
+            return next(HttpError.Conflict("Le username existe déjà dans la base de données."));
+        }
+
+        //Si la requete est vide
+        if(Object.keys(newExplorer).length === 0) 
+        {//On retourne une erreur BadRequest
+            return next(HttpError.BadRequest('Le client ne peut pas contenir aucune donnée'));
+        }
+
         try {
-            let explorer = await ExplorerRepository.create(req.body);
+            let explorer = await ExplorerRepository.create(newExplorer);
+
             explorer = explorer.toObject({getters:false, virtuals:false});
             explorer = ExplorerRepository.transform(explorer);
             const tokens = ExplorerRepository.generateJWT(explorer.email);

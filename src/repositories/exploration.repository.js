@@ -12,7 +12,7 @@ class ExplorationRepository {
 
     // Création d'une exploration
     create(exploration) {
-        return Exploration.create(exploration);
+       // return Exploration.create(exploration);
     }
 
     // Permet de retirer les imformations sesnsibles d'une exploration et créer son href avant de le retourner

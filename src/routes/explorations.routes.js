@@ -9,8 +9,8 @@ const router = express.Router();
 
 class ExplorationsRoutes {
     constructor() {
-        router.get('/', paginate.middleware(20, 40), this.getAll);
-        router.get('/:idExploration', this.getOne);
+        router.get('/:idExplorer/explorations', paginate.middleware(20, 40), this.getAll);
+        router.get('/:idExplorer/:idExploration', this.getOne);
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -22,6 +22,7 @@ class ExplorationsRoutes {
         //     retrieveOptions. = true;
         //   }
     
+          const idExplorer = req.params.idExploration;
           const idExploration = req.params.idExploration;
     
           let Exploration = await ExplorationRepository.retrieveById(idExploration);
@@ -38,6 +39,39 @@ class ExplorationsRoutes {
           return next(error);
         }
     } 
+
+    // Récupérer les exporations d'un user
+    async getAll(req, res, next) {
+      //Pour la pagination
+      //const retrieveOptions = {
+      //  skip: req.skip,
+      //  limit: req.query.limit
+      //};
+
+      try {
+        
+        const idExplorer = req.params.idExplorer;
+  
+        const explorations = ExplorationRepository.retrieveAll(idExplorer);
+
+        //Pour la pagination
+        //const pageCount = Math.ceil(itemsCount / req.query.limit);
+        //const hasNextPage = paginate.hasNextPages(req)(pageCount);
+        //const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
+
+        explorations = explorations.map(e => {
+          e = a.toObject({getters:false, virtuals:false});
+          e = ordersRepository.transform(e);
+          return e;
+        });
+  
+        //retourne les allies
+        res.status(200).json(explorations);
+  
+      } catch (error) {
+        return next(error);
+      }
+  }  
     
     // Création d'une exploration
     async post(req, res, next) {
