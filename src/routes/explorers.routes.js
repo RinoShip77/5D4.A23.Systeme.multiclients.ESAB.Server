@@ -7,20 +7,22 @@ import ExplorerRepository from "../repositories/explorer.repository.js"
 import validator from '../middlewares/validator.js';
 import BlacklistedJWTRepository from "../repositories/blacklistedJWT.repository.js";
 import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
+import explorationRepository from '../repositories/exploration.repository.js';
 
 const router = express.Router();
 
 class ExplorersRoutes {
     constructor() {
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
-        router.get('/:idExplorer', this.getOne);
+        router.get('/:username', this.getOne);
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
-        router.get('/actions/login', authorizationJWT , this.login);
-        router.get('/actions/logout', this.logout)
+        router.post('/actions/login' , this.login);
+        router.post('/actions/logout', this.logout)
       }
 
     // Route pour la connexion
     async login(req, res, next) {
+        
         const { email, username, password } = req.body;
 
         if((email && username) || email === "" || username === "") {
@@ -43,16 +45,17 @@ class ExplorersRoutes {
     // Route pour la connexion
     async getOne(req, res, next) {
         try {
-        const idExplorer = req.params.idExplorer;
+        const username = req.params.username;
 
-        let explorer = await ExplorerRepository.retrieveById(idExplorer);
+        let explorer = await ExplorerRepository.retrieveByUsername(username);
 
         if (!explorer)
         {
-            return next(HttpError.NotFound(`Il n'y a pas d'explorateur avec l'id :"${idExplorer}"`));
+            return next(HttpError.NotFound(`Il n'y a pas d'explorateur avec le username :"${username}"`));
         }
     
-        explorer = ally.toObject({ getters: false, virtuals: true });
+        explorer = explorer.toObject({ getters: false, virtuals: true });
+        explorer = ExplorerRepository.transform(explorer);
 
         res.json(explorer).status(200);
         } catch (err)
@@ -62,19 +65,26 @@ class ExplorersRoutes {
     }
 
     // Déconnexion d'un explorer (Blacklist de son token et redirection vers la page de connexion)
-    async logout(req, res) {
+    async logout(req, res, next) {
 
-        // Vérifier ce qui est stocké, supposer avoir stocké Ce qui se trouve après Bearer donc le token
-        const tokenToInvalidate = req.headers.authorization.split(' ')[1];
-
-        await BlacklistedJWTRepository.create(tokenToInvalidate);
-
-        res.status(200).json({ message: 'Logged out successfully' });
-        res.redirect('/login'); // TODO: !!! Redirection au Login à VALIDER !!!
+        try
+        {
+            // Vérifier ce qui est stocké, supposer avoir stocké Ce qui se trouve après Bearer donc le token
+            const tokenToInvalidate = req.headers.authorization.split(' ')[1];
+    
+            await BlacklistedJWTRepository.create(tokenToInvalidate);
+    
+            res.status(200).json({ message: 'Logged out successfully' });
+            //res.redirect('/login'); // TODO: !!! Redirection au Login à VALIDER !!!
+        } catch(err)
+        {
+            return next(err);
+        }
     }
 
     // Création d'un explorer
     async post(req, res, next) {
+        
         const newExplorer = req.body;
 
         let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);

@@ -1,4 +1,9 @@
-import Explorer from "../models/explorer.model.js";
+import { v4 as uuidv4 } from 'uuid';
+import argon2d from 'argon2';
+import jwt from 'jsonwebtoken';
+import HttpError from 'http-errors';
+
+import {Explorer} from "../models/explorer.model.js";
 
 class ExplorerRepository {
 
@@ -10,6 +15,7 @@ class ExplorerRepository {
             return { err: HttpError.Unauthorized() }
         }
         //Nous avons un compte avec le email ou username
+
         //Vérification du bon mot de passe
         if(await this.validatePassword(password, explorer)) {
             return { explorer };
@@ -52,23 +58,28 @@ class ExplorerRepository {
         return retrieveQuery;
     }
 
-    //TEAMATE B
     retrieveByUsername(email){
-        let retrieveQuery = Explorer.find({'username':{$in:email}});
+        let retrieveQuery = Explorer.findOne({'username':{$in:email}});
 
         return retrieveQuery;
     }
 
-    //TEAMATE B
     retrieveByEmail(email){
-        let retrieveQuery = Explorer.find({'email':{$in:email}});
+        let retrieveQuery = Explorer.findOne({'email':{$in:email}});
 
         return retrieveQuery;
     }
 
     // Création d'un explorer
-    create(explorer) {
-        return Explorer.create(explorer);
+    async create(explorer) {
+
+        try {
+            explorer.passwordHash = await argon2d.hash(explorer.password);
+            delete explorer.password;
+            return Explorer.create(explorer);
+        } catch(err) {
+            throw err;
+        }
     }
 
     // Permet de retirer les imformations sesnsibles d'un explorer et créer son href avant de le retourner

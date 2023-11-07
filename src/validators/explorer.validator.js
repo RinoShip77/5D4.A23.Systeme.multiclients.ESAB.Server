@@ -8,7 +8,7 @@ class ExplorerValidators {
       body('surname').exists().withMessage('Requis'),
       body('username').exists().withMessage('Requis'),
       body('email').exists().withMessage('Requis'),
-      body('passwordHash').exists().withMessage('Requis'),
+      body('password').exists().withMessage('Requis'),
       //...this.partial()
     ];
   }

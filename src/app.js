@@ -32,6 +32,7 @@ app.use('/allies', AlliesRoutes);
 app.use('/explorations', ExplorationsRoutes);
 app.use('/explorers', ExplorersRoutes);
 
+
 app.use(errors);
 
 export default app;

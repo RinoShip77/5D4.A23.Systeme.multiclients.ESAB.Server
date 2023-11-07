@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv-flow/config';
 import chalk from 'chalk';
 import app from './src/app.js';
 

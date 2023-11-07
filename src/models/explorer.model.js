@@ -19,6 +19,10 @@ const explorerSchema = mongoose.Schema(
             }
         ]
     }
+},{
+    collection:'explorers',
+    strict: 'throw',
+    timestamps: true
 });
 
 explorerSchema.virtual('allies', 
@@ -37,4 +41,5 @@ explorerSchema.virtual('explorations',
     justOne: false
 });
 
-export default mongoose.model('Explorer', explorerSchema);
+const Explorer = new mongoose.model('Explorer', explorerSchema);
+export { Explorer };

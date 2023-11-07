@@ -19,10 +19,10 @@ class ExplorationRepository {
     // TODO: Vérifier si on a besoin
     transform(exploration, transformOptions = {}) {
 
-        exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
+        //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
 
-        delete exploration._id;
-        delete exploration.__v;
+        //delete exploration._id;
+        //delete exploration.__v;
 
         return exploration;
 
