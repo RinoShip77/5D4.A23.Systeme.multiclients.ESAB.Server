@@ -1,6 +1,5 @@
 import express from 'express';
 import HttpError from 'http-errors';
-import HttpStatus from 'http-status';
 import { mongoose } from 'mongoose';
 
 import explorerValidators from '../validators/explorer.validator.js'
@@ -109,7 +108,7 @@ class ExplorersRoutes {
         }
     }
 
-};
+}
 
 new ExplorersRoutes();
 export default router;

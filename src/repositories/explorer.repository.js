@@ -52,6 +52,20 @@ class ExplorerRepository {
         return retrieveQuery;
     }
 
+    //TEAMATE B
+    retrieveByUsername(email){
+        let retrieveQuery = Explorer.find({'username':{$in:email}});
+
+        return retrieveQuery;
+    }
+
+    //TEAMATE B
+    retrieveByEmail(email){
+        let retrieveQuery = Explorer.find({'email':{$in:email}});
+
+        return retrieveQuery;
+    }
+
     // Création d'un explorer
     create(explorer) {
         return Explorer.create(explorer);
@@ -60,7 +74,7 @@ class ExplorerRepository {
     // Permet de retirer les imformations sesnsibles d'un explorer et créer son href avant de le retourner
     transform(explorer, transformOptions = {}) {
 
-        account.href = `${process.env.BASE_URL}/explorers/${explorer._id}`;
+        //account.href = `${process.env.BASE_URL}/explorers/${explorer._id}`;
 
         delete explorer._id;
         delete explorer.__v;

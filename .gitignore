@@ -111,3 +111,4 @@ dist/
 
 .certificates
 
+.env
