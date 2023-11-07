@@ -70,6 +70,7 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.development
 .env.test
 .env.*
 
@@ -110,5 +111,3 @@ dist/
 
 .certificates
 
-.env
-.env.development

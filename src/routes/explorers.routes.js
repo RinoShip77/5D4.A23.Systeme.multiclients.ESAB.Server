@@ -1,13 +1,13 @@
 import express from 'express';
-import paginate from 'express-paginate';
 import HttpError from 'http-errors';
+import HttpStatus from 'http-status';
 import { mongoose } from 'mongoose';
 
 import explorerValidators from '../validators/explorer.validator.js'
 import ExplorerRepository from "../repositories/explorer.repository.js"
 import validator from '../middlewares/validator.js';
 import BlacklistedJWTRepository from "../repositories/blacklistedJWT.repository.js";
-import { authorizationJWT, refreshJW } from '../middlewares/authorization.jwt.js';
+import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
 
 const router = express.Router();
 
@@ -15,9 +15,9 @@ class ExplorersRoutes {
     constructor() {
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
         router.get('/:idExplorer', this.getOne);
-        // router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
-        router.post('/actions/login', authorizationJWT , this.login);
-        router.post('/actions/logout', this.logout)
+        router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
+        router.get('/actions/login', authorizationJWT , this.login);
+        router.get('/actions/logout', this.logout)
       }
 
     // Route pour la connexion
@@ -58,7 +58,7 @@ class ExplorersRoutes {
         res.json(explorer).status(200);
         } catch (err)
         {
-            return next(error);
+            return next(err);
         }
     }
 
@@ -109,7 +109,7 @@ class ExplorersRoutes {
         }
     }
 
-}
+};
 
 new ExplorersRoutes();
 export default router;

@@ -1,5 +1,4 @@
 import express from 'express';
-import paginate from 'express-paginate';
 import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
 
@@ -9,7 +8,7 @@ const router = express.Router();
 
 class ExplorationsRoutes {
     constructor() {
-        router.get('/:idExplorer/explorations', paginate.middleware(20, 40), this.getAll);
+        router.get('/:idExplorer/explorations', this.getAll);
         router.get('/:idExplorer/:idExploration', this.getOne);
       }
     

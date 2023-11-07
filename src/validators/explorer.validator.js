@@ -4,12 +4,11 @@ const { body } = expressValidator;
 class ExplorerValidators {
   complete() {
     return [
-      body('firstName').exists().withMessage('Requis'),
-      body('lastName').exists().withMessage('Requis'),
+      body('name').exists().withMessage('Requis'),
+      body('surname').exists().withMessage('Requis'),
       body('username').exists().withMessage('Requis'),
       body('email').exists().withMessage('Requis'),
-      body('planet').exists().withMessage('Requis'),
-      body('birthday').exists(),
+      body('passwordHash').exists().withMessage('Requis'),
       //...this.partial()
     ];
   }

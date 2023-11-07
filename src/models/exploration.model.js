@@ -8,21 +8,21 @@ const explorationSchema = mongoose.Schema({
 
     vault: 
     {
-        inox: {type: number, required:true},
+        inox: {type: Number, required:true},
         elements:
         [
             {
                 name: {type: String, required:true},
-                quantity: {type: number, required:true}
+                quantity: {type: Number, required:true}
             }
         ]
     }
 });
 
-customerSchema.virtual('ally', {
-    ref: 'Order',
+explorationSchema.virtual('ally', {
+    ref: 'Ally',
     localField: '_id',
-    foreignField: 'customer',
+    foreignField: 'exploration',
     justOne: true
 });
 

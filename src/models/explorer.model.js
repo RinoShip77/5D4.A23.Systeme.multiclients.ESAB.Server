@@ -10,30 +10,30 @@ const explorerSchema = mongoose.Schema(
 
     inventory:
     {
-        inox: {type: number, required:true},
+        inox: {type: Number, required:true},
         elements:
         [
             {
                 name: {type: String, required:true},
-                quantity: {type: number, required:true}
+                quantity: {type: Number, required:true}
             }
         ]
     }
 });
 
-customerSchema.virtual('allies', 
+explorerSchema.virtual('allies', 
 {
-    ref: 'Order',
+    ref: 'Ally',
     localField: '_id',
-    foreignField: 'customer',
+    foreignField: 'explorer',
     justOne: false
 });
 
-customerSchema.virtual('explorations', 
+explorerSchema.virtual('explorations', 
 {
-    ref: 'Order',
+    ref: 'Exploration',
     localField: '_id',
-    foreignField: 'customer',
+    foreignField: 'explorer',
     justOne: false
 });
 

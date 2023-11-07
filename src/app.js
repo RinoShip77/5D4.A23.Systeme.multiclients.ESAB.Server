@@ -6,9 +6,9 @@ import database from './core/database.js';
 import errors from './core/errors.js';
 
 //import routes
-import AlliesRoutes from './routes/accounts.routes.js';
-import ExplorationsRoutes from './routes/accounts.routes.js';
-import ExplorersRoutes from './routes/accounts.routes.js';
+import AlliesRoutes from './routes/allies.routes.js';
+import ExplorationsRoutes from './routes/explorations.routes.js';
+import ExplorersRoutes from './routes/explorers.routes.js';
 
 const app = express();
 

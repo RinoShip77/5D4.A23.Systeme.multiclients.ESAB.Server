@@ -4,19 +4,19 @@ const allySchema = mongoose.Schema({
 
     name:{type:String, required:true},
     affinity:{type:String, required:true},
-    essence: {type: number, required:true},
+    essence: {type:Number, required:true},
     stats:
     {
-        life: {type: number, required:true},
-        speed: {type: number, required:true},
-        power: {type: number, required:true},
-        shield: {type: number, required:true},
+        life: {type: Number, required:true},
+        speed: {type: Number, required:true},
+        power: {type: Number, required:true},
+        shield: {type: Number, required:true},
     },
 
     crypto:
     {
-        hash: {type: string, required:true},
-        signature: {type: string, required:true},
+        hash: {type: String, required:true},
+        signature: {type: String, required:true},
     },
 
     books:
@@ -28,27 +28,13 @@ const allySchema = mongoose.Schema({
     [
 
     ],
-    uuid: {type: number, required:true, unique:true},
-    archiveIndex: {type: number, required:true, unique:true},
-    href: {type: string, required:true},
-    asset: {type: string, required:true},
-    createdAt: {type: string, required:true},
-    updatedAt: {type: string, required:true},
-    expireAt: {type: string, required:true}
-});
-
-customerSchema.virtual('allies', {
-    ref: 'Order',
-    localField: '_id',
-    foreignField: 'customer',
-    justOne: false
-});
-
-customerSchema.virtual('explorations', {
-    ref: 'Order',
-    localField: '_id',
-    foreignField: 'customer',
-    justOne: false
+    uuid: {type: Number, required:true, unique:true},
+    archiveIndex: {type: Number, required:true, unique:true},
+    href: {type: String, required:true},
+    asset: {type: String, required:true},
+    createdAt: {type: String, required:true},
+    updatedAt: {type: String, required:true},
+    expireAt: {type: String, required:true}
 });
 
 export default mongoose.model('Ally', allySchema);

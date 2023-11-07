@@ -8,7 +8,7 @@ const authorizationJWT = expressjwt({
     isRevoked: async (req, token) => {
         //Gestion des tokens expirés/blacklist
         // Vérifiez si le token est blacklisté
-        const token = req.headers.authorization; // Récupérer le token dans la requête (si présent)
+        token = req.headers.authorization; // Récupérer le token dans la requête (si présent)
 
         if (!token) {
         return done(null, false); // Le token n'est pas présent, donc invalide
