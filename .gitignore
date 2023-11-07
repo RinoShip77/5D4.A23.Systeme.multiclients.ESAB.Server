@@ -112,3 +112,5 @@ dist/
 .certificates
 
 .env
+env
+env.development
