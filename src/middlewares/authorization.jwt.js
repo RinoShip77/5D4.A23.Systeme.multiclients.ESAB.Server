@@ -11,18 +11,18 @@ const authorizationJWT = expressjwt({
         token = req.headers.authorization; // Récupérer le token dans la requête (si présent)
 
         if (!token) {
-        return done(null, false); // Le token n'est pas présent, donc invalide
+        return false; // Le token n'est pas présent, donc invalide
         }
 
         // Vérifiez si le token est blacklisté
         const blacklistedToken = await BlacklistedTokenRepository.findByToken(token);
 
         if (blacklistedToken) {
-        return done(null, true); // Le token est blacklisté, renvoyez true
+        return true; // Le token est blacklisté, renvoyez true
         }
 
         // Le token n'est ni blacklisté ni expiré, autorisez l'accès
-        done(null, false);
+        return false;
     }
 });
 

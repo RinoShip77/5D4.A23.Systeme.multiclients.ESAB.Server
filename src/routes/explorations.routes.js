@@ -1,15 +1,18 @@
 import express from 'express';
 import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
+import axios from 'axios';
 
 import ExplorationRepository from "../repositories/exploration.repository.js"
 
 const router = express.Router();
 
+
 class ExplorationsRoutes {
     constructor() {
         router.get('/:idExplorer/explorations', this.getAll);
-        router.get('/:idExplorer/:idExploration', this.getOne);
+        router.get('/:idExploration', this.getOne);
+        router.post('/actions/explore/:key', this.post);
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -21,13 +24,14 @@ class ExplorationsRoutes {
         //     retrieveOptions. = true;
         //   }
     
-          const idExplorer = req.params.idExploration;
+          //const idExplorer = req.params.idExploration;
+
           const idExploration = req.params.idExploration;
     
           let Exploration = await ExplorationRepository.retrieveById(idExploration);
     
           if (!Exploration)
-            return next(HttpError.NotFound(`Le client avec l'id "${idExploration}" n'existe pas!`));
+            return next(HttpError.NotFound(`L'exploration avec l'id "${idExploration}" n'existe pas!`));
     
             Exploration = Exploration.toObject({ getters: false, virtuals: true });
             // Pas besoin de transform
@@ -73,12 +77,28 @@ class ExplorationsRoutes {
   }  
     
     // Création d'une exploration
-    async post(req, res, next) {
+    async post(req, res, next) 
+    {
         try {
-            let exploration = await ExplorationRepository.create(req.body);
-            exploration = exploration.toObject({getters:false, virtuals:false});
-            exploration = ExplorationRepository.transform(exploration);
-            res.status(201).json({explorer, tokens});
+
+            const explorationKey = req.params.key;
+
+            let url = process.env.PORTAL_URL + explorationKey;
+            let explorationData;
+
+            await axios.get(url)
+            .then(res => {
+              explorationData = res.data;
+            })
+            .catch(err => {
+              return next(err);
+            });
+
+            res.status(200).json(explorationData);
+            //let exploration = await ExplorationRepository.create(req.body);
+            //exploration = exploration.toObject({getters:false, virtuals:false});
+            //exploration = ExplorationRepository.transform(exploration);
+            //res.status(201).json({exploration, tokens});
         } catch(err) {
             return next(err);
         }

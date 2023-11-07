@@ -14,9 +14,9 @@ const router = express.Router();
 class ExplorersRoutes {
     constructor() {
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
-        router.get('/:username', this.getOne);
+        router.get('/:username', authorizationJWT, this.getOne);
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
-        router.post('/actions/login' , this.login);
+        router.post('/actions/login', this.login);
         router.post('/actions/logout', this.logout)
       }
 
@@ -87,7 +87,7 @@ class ExplorersRoutes {
         
         const newExplorer = req.body;
 
-        let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
+        /*let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
         let usernameSearch = await ExplorerRepository.retrieveByUsername(newExplorer.username);
 
         if(emailSearch.length)
@@ -98,7 +98,7 @@ class ExplorersRoutes {
         if(usernameSearch.length)
         {
             return next(HttpError.Conflict("Le username existe déjà dans la base de données."));
-        }
+        }*/
 
         //Si la requete est vide
         if(Object.keys(newExplorer).length === 0) 
