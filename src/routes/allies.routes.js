@@ -1,6 +1,7 @@
 import express from 'express';
 import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
+import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
 
 import AllyRepository from "../repositories/ally.repository.js"
 import allyRepository from '../repositories/ally.repository.js';
@@ -9,8 +10,8 @@ const router = express.Router();
 
 class AlliesRoutes {
     constructor() {
-        router.get('/:idExplorer/allies', this.getAll);
-        router.get('/:idAlly/:idAlly', this.getOne);
+        router.get('/:idExplorer/allies', authorizationJWT, this.getAll); //Trouver les allies d'un explorateur
+        router.get('/:idExplorer/:idAlly', authorizationJWT, this.getOne); //Trouver un ally précis d'un explorateur
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -22,12 +23,16 @@ class AlliesRoutes {
         //     retrieveOptions. = true;
         //   }
     
+          const idExplorer = req.params.idExplorer;
           const idAlly = req.params.idAlly;
     
+          //À Changer (prendre en compte le idExplorer)
           let ally = await AllyRepository.retrieveById(idAlly);
     
           if (!ally)
+          {
             return next(HttpError.NotFound(`Le client avec l'id "${idAlly}" n'existe pas!`));
+          }
     
           ally = ally.toObject({ getters: false, virtuals: true });
           // Pas besoin de transform

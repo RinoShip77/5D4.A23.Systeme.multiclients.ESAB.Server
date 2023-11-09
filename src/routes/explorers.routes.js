@@ -14,10 +14,10 @@ const router = express.Router();
 class ExplorersRoutes {
     constructor() {
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
-        router.get('/:username', authorizationJWT, this.getOne);
+        router.get('/:username', authorizationJWT, this.getOne); // Trouver infos explorateur
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
-        router.post('/actions/login', this.login);
-        router.post('/actions/logout', this.logout)
+        router.get('/actions/login', this.login); // Connexion
+        router.get('/actions/logout', this.logout); // Déco, blacklist du token
       }
 
     // Route pour la connexion
@@ -30,12 +30,13 @@ class ExplorersRoutes {
         }
 
         const result = await ExplorerRepository.login(email, username, password);
+
         if(result.explorer) {
             // Nous sommes connectés
             let explorer = result.explorer.toObject({getters:false, virtuals:false});
             explorer = ExplorerRepository.transform(explorer);
             const tokens = ExplorerRepository.generateJWT(explorer.email);
-            res.status(201).json({explorer, tokens});
+            res.status(200).json({explorer, tokens});
         } else {
             // Erreur lors de la connexion
             return next(result.err);
@@ -74,7 +75,7 @@ class ExplorersRoutes {
     
             await BlacklistedJWTRepository.create(tokenToInvalidate);
     
-            res.status(200).json({ message: 'Logged out successfully' });
+            res.status(200).json({ message: 'Déconnecté avec succès!' });
             //res.redirect('/login'); // TODO: !!! Redirection au Login à VALIDER !!!
         } catch(err)
         {
@@ -87,6 +88,7 @@ class ExplorersRoutes {
         
         const newExplorer = req.body;
 
+        //Valide s'il y a déjà un user avec ce email ou ce username
         /*let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
         let usernameSearch = await ExplorerRepository.retrieveByUsername(newExplorer.username);
 

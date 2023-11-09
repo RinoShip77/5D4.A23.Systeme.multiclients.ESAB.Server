@@ -26,4 +26,5 @@ explorationSchema.virtual('ally', {
     justOne: true
 });
 
-export default mongoose.model('Exploration', explorationSchema);
+const Exploration = new mongoose.model('Exploration', explorationSchema);
+export { Exploration };

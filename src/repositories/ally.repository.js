@@ -1,4 +1,4 @@
-import Ally from "../models/ally.model.js";
+import {Ally} from "../models/ally.model.js";
 
 class AllyRepository {
 
@@ -17,6 +17,18 @@ class AllyRepository {
         return retrieveQuery;
     }
 
+    transform(ally, transformOptions = {}) 
+    {
+
+        //Peut-être plus tard
+        //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
+
+        delete ally._id;
+        delete ally.__v;
+
+        return ally;
+
+    }
 }
 
 export default new AllyRepository();

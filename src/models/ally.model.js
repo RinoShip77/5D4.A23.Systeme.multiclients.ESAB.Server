@@ -37,4 +37,5 @@ const allySchema = mongoose.Schema({
     expireAt: {type: String, required:true}
 });
 
-export default mongoose.model('Ally', allySchema);
+const Ally = new mongoose.model('Ally', allySchema);
+export { Ally };

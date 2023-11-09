@@ -85,6 +85,7 @@ class ExplorerRepository {
     // Permet de retirer les imformations sesnsibles d'un explorer et créer son href avant de le retourner
     transform(explorer, transformOptions = {}) {
 
+        //Peut-être plus tard
         //account.href = `${process.env.BASE_URL}/explorers/${explorer._id}`;
 
         delete explorer._id;

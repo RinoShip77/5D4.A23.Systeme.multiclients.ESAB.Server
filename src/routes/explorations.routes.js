@@ -2,6 +2,7 @@ import express from 'express';
 import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
 import axios from 'axios';
+import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
 
 import ExplorationRepository from "../repositories/exploration.repository.js"
 
@@ -10,9 +11,9 @@ const router = express.Router();
 
 class ExplorationsRoutes {
     constructor() {
-        router.get('/:idExplorer/explorations', this.getAll);
-        router.get('/:idExploration', this.getOne);
-        router.post('/actions/explore/:key', this.post);
+        router.get('/:idExplorer/explorations', authorizationJWT, this.getAll); //Trouver les explorations d'un explorateur
+        router.get('/:idExplorer/:idExploration', authorizationJWT, this.getOne); //Trouver une exploration précise d'un explorateur
+        router.post('/actions/explore/:key', authorizationJWT, this.post); //Explorer
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -24,20 +25,25 @@ class ExplorationsRoutes {
         //     retrieveOptions. = true;
         //   }
     
-          //const idExplorer = req.params.idExploration;
+          
+          const idExplorer = req.params.idExploration;
 
           const idExploration = req.params.idExploration;
     
-          let Exploration = await ExplorationRepository.retrieveById(idExploration);
+          //À Changer, (chercher dans les explorations de l'explorer)
+          let exploration = await ExplorationRepository.retrieveById(idExploration);
     
-          if (!Exploration)
+          if (!exploration)
+          {
             return next(HttpError.NotFound(`L'exploration avec l'id "${idExploration}" n'existe pas!`));
+          }
     
-            Exploration = Exploration.toObject({ getters: false, virtuals: true });
-            // Pas besoin de transform
-            // Exploration = explorationRepository.transform(Exploration, retrieveOptions);
+            exploration = exploration.toObject({ getters: false, virtuals: true });
+
+            // Peut-être besoin de transform plus tard
+            // exploration = explorationRepository.transform(exploration, retrieveOptions);
     
-          res.json(Exploration).status(200);
+          res.json(exploration).status(200);
         } catch (error) {
           return next(error);
         }
@@ -45,7 +51,8 @@ class ExplorationsRoutes {
 
     // Récupérer les exporations d'un user
     async getAll(req, res, next) {
-      //Pour la pagination
+
+      //Pour la pagination (peut-être)
       //const retrieveOptions = {
       //  skip: req.skip,
       //  limit: req.query.limit
@@ -57,13 +64,13 @@ class ExplorationsRoutes {
   
         const explorations = ExplorationRepository.retrieveAll(idExplorer);
 
-        //Pour la pagination
+        //Pour la pagination (peut-être)
         //const pageCount = Math.ceil(itemsCount / req.query.limit);
         //const hasNextPage = paginate.hasNextPages(req)(pageCount);
         //const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
 
         explorations = explorations.map(e => {
-          e = a.toObject({getters:false, virtuals:false});
+          e = e.toObject({getters:false, virtuals:false});
           e = ordersRepository.transform(e);
           return e;
         });
@@ -94,7 +101,9 @@ class ExplorationsRoutes {
               return next(err);
             });
 
-            res.status(200).json(explorationData);
+            res.status(201).json(explorationData);
+
+            //Ajouter dans la base de données! (À faire plus tard)
             //let exploration = await ExplorationRepository.create(req.body);
             //exploration = exploration.toObject({getters:false, virtuals:false});
             //exploration = ExplorationRepository.transform(exploration);
