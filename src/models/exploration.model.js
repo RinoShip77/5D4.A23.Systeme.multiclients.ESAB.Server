@@ -8,16 +8,27 @@ const explorationSchema = mongoose.Schema({
 
     vault: 
     {
-        inox: {type: Number, required:true},
+        inox: {type: Number, required:false},
         elements:
         [
             {
-                name: {type: String, required:true},
-                quantity: {type: Number, required:true}
+                element: {type: String, required:false},
+                quantity: {type: Number, required:false},
+                _id:false
             }
         ]
+    },
+
+    explorer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Explorer',
+        required: true
     }
-});
+},{
+    collection: 'explorations',
+    strict:'throw'
+}
+);
 
 explorationSchema.virtual('ally', {
     ref: 'Ally',
