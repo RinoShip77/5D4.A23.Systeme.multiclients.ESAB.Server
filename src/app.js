@@ -29,7 +29,7 @@ const limiter = expressRateLimit(
 app.use(limiter);
 
 app.use('/allies', AlliesRoutes);
-app.use('/explorations', ExplorationsRoutes);
+app.use('/explorers', ExplorationsRoutes);
 app.use('/explorers', ExplorersRoutes);
 
 
