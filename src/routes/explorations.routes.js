@@ -12,7 +12,7 @@ const router = express.Router();
 class ExplorationsRoutes {
     constructor() {
         router.get('/:idExplorer/explorations', authorizationJWT, this.getAll); //Trouver les explorations d'un explorateur
-        router.get('/:idExplorer/:idExploration', authorizationJWT, this.getOne); //Trouver une exploration précise d'un explorateur
+        router.get('/:idExplorer/explorations/:idExploration', authorizationJWT, this.getOne); //Trouver une exploration précise d'un explorateur
         router.post('/actions/explore/:key', authorizationJWT, this.post); //Explorer
       }
     
