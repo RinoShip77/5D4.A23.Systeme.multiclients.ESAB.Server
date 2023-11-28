@@ -2,6 +2,12 @@ import {Ally} from "../models/ally.model.js";
 
 class AllyRepository {
 
+    // Création d'une exploration
+    create(ally) 
+    {
+        return Ally.create(ally);
+    }
+
     // Permet de récupérer un ally à partir d'un id
     retrieveById(idAlly) {
 

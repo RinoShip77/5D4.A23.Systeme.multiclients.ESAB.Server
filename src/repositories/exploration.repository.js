@@ -30,10 +30,13 @@ class ExplorationRepository {
     transform(exploration, transformOptions = {}) {
 
         //Peut-être plus tard
-        //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
+        //exploration.href = `${process.env.BASE_URL}/explorers/${exploration._id}`;
+        //exploration.capture_href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/ally/${exploration.ally}`;
 
         //delete exploration.{"_id": {$in: elements}};
+        delete exploration.ally;
         delete exploration.__v;
+        delete exploration.explorer;
 
         return exploration;
 

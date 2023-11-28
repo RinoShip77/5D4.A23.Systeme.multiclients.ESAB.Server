@@ -23,19 +23,18 @@ const explorationSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Explorer',
         required: true
+    },
+
+    ally: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Ally',
+        required: false
     }
 },{
     collection: 'explorations',
     strict:'throw'
 }
 );
-
-explorationSchema.virtual('ally', {
-    ref: 'Ally',
-    localField: '_id',
-    foreignField: 'exploration',
-    justOne: true
-});
 
 const Exploration = new mongoose.model('Exploration', explorationSchema);
 export { Exploration };

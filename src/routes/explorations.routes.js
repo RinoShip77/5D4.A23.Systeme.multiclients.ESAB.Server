@@ -5,6 +5,7 @@ import axios from 'axios';
 import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
 
 import ExplorationRepository from "../repositories/exploration.repository.js"
+import allyRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
@@ -13,8 +14,8 @@ class ExplorationsRoutes {
   constructor() {
     router.get('/:idExplorer/explorations', this.getAll); //Trouver les explorations d'un explorateur
     router.get('/:idExplorer/explorations/:idExploration', authorizationJWT, this.getOne); //Trouver une exploration précise d'un explorateur
-    router.post('/actions/explore/:key', authorizationJWT, this.post); //Explorer
-    router.post('/actions/capture/:idExploration', authorizationJWT, this.capture); //Explorer
+    router.post('/:idExplorer/explorations', authorizationJWT, this.post); //Explorer
+    router.post('/:idExplorer/ally/:idAlly', authorizationJWT, this.capture); //Explorer
   }
 
   // Récupérer une exploration à partir d'"un id d'exploration
@@ -87,7 +88,8 @@ class ExplorationsRoutes {
   async post(req, res, next) {
     try {
 
-      const explorationKey = req.params.key;
+      const idExplorer = req.params.idExplorer;
+      const explorationKey = req.body.key;
 
       let url = process.env.PORTAL_URL + explorationKey;
       let explorationData;
@@ -100,37 +102,13 @@ class ExplorationsRoutes {
           return next(err);
         });
 
-      res.status(201).json(explorationData);
-
-      //Ajouter dans la base de données! (À faire plus tard)
-      //let exploration = await ExplorationRepository.create(req.body);
-      //exploration = exploration.toObject({getters:false, virtuals:false});
-      //exploration = ExplorationRepository.transform(exploration);
-      //res.status(201).json({exploration, tokens});
-    } catch (err) {
-      return next(err);
-    }
-  }
-
-  // Création d'une exploration
-  async post(req, res, next) {
-    try {
-
-      const explorationKey = req.params.key;
-
-      let url = process.env.PORTAL_URL + explorationKey;
-      let explorationData;
-
-      await axios.get(url)
-        .then(res => {
-          explorationData = res.data;
-        })
-        .catch(err => {
-          return next(err);
-        });
+      //let ally = await allyRepository.explorationData.ally;
 
       let explorationTransformed = await ExplorationRepository.transformIntoExploration(explorationData);
 
+      explorationTransformed.explorer = idExplorer;
+
+      // let exploration = await ExplorationRepository.create(explorationData.ally);
       let exploration = await ExplorationRepository.create(explorationTransformed);
 
       exploration = exploration.toObject({getters:false, virtuals:false});

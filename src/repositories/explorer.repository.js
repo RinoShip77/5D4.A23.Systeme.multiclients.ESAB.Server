@@ -88,6 +88,8 @@ class ExplorerRepository {
         //Peut-être plus tard
         //account.href = `${process.env.BASE_URL}/explorers/${explorer._id}`;
 
+        explorer.href = `${process.env.BASE_URL}/explorers/${explorer._id}`;
+
         delete explorer._id;
         delete explorer.__v;
         delete explorer.password; //supprime le mot de passe en clair de l'objet avant de le sauvegarder

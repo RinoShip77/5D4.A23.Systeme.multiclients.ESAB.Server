@@ -14,9 +14,9 @@ const router = express.Router();
 class ExplorersRoutes {
     constructor() {
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
-        router.get('/:username', authorizationJWT, this.getOne); // Trouver infos explorateur
+        router.get('/:idExplorer', authorizationJWT, this.getOne); // Trouver infos explorateur
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
-        router.post('/actions/login', this.login); // Connexion
+        router.get('/actions/login', this.login); // Connexion
         router.delete('/actions/logout', this.logout); // Déco, blacklist du token
       }
 
@@ -46,9 +46,9 @@ class ExplorersRoutes {
     // Route pour la connexion
     async getOne(req, res, next) {
         try {
-        const username = req.params.username;
+        const idExplorer = req.params.idExplorer;
 
-        let explorer = await ExplorerRepository.retrieveByUsername(username);
+        let explorer = await ExplorerRepository.retrieveById(idExplorer);
 
         if (!explorer)
         {
