@@ -12,10 +12,9 @@ const router = express.Router();
 
 class ExplorationsRoutes {
   constructor() {
-    router.get('/:idExplorer/explorations', this.getAll); //Trouver les explorations d'un explorateur
+    router.get('/:idExplorer/explorations', authorizationJWT, this.getAll); //Trouver les explorations d'un explorateur
     router.get('/:idExplorer/explorations/:idExploration', authorizationJWT, this.getOne); //Trouver une exploration précise d'un explorateur
     router.post('/:idExplorer/explorations', authorizationJWT, this.post); //Explorer
-    router.post('/:idExplorer/ally/:idAlly', authorizationJWT, this.capture); //Explorer
   }
 
   // Récupérer une exploration à partir d'"un id d'exploration
@@ -28,18 +27,19 @@ class ExplorationsRoutes {
       //   }
 
 
-      const idExplorer = req.params.idExploration;
-
+      //const idExplorer = req.params.idExploration;
       const idExploration = req.params.idExploration;
 
       //À Changer, (chercher dans les explorations de l'explorer)
+      //let exploration = await ExplorationRepository.retrieveById(idExploration, idExplorer);
       let exploration = await ExplorationRepository.retrieveById(idExploration);
 
       if (!exploration) {
         return next(HttpError.NotFound(`L'exploration avec l'id "${idExploration}" n'existe pas!`));
       }
 
-      exploration = exploration.toObject({ getters: false, virtuals: true });
+      exploration = exploration.toObject({ getters: false, virtuals: false });
+      exploration = ExplorationRepository.transform(exploration);
 
       // Peut-être besoin de transform plus tard
       // exploration = explorationRepository.transform(exploration, retrieveOptions);
@@ -63,7 +63,7 @@ class ExplorationsRoutes {
 
       const idExplorer = req.params.idExplorer;
 
-      const explorations = ExplorationRepository.retrieveAll(idExplorer);
+      let explorations = await ExplorationRepository.retrieveAll(idExplorer);
 
       //Pour la pagination (peut-être)
       //const pageCount = Math.ceil(itemsCount / req.query.limit);
@@ -71,8 +71,8 @@ class ExplorationsRoutes {
       //const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
 
       explorations = explorations.map(e => {
-        e = e.toObject({ getters: false, virtuals: true });
-        e = ordersRepository.transform(e);
+        e = e.toObject({ getters: false, virtuals: false });
+        e = ExplorationRepository.transform(e);
         return e;
       });
 
@@ -102,9 +102,18 @@ class ExplorationsRoutes {
           return next(err);
         });
 
-      //let ally = await allyRepository.explorationData.ally;
+      let ally;
+      let allyData = explorationData.ally;
+      allyData.explorer = idExplorer;
+      
+      if(allyData)
+      {
+        ally = await allyRepository.create(allyData);
+        ally = ally.toObject({getters:false, virtuals:false});
+        ally = allyRepository.transform(ally);
+      }
 
-      let explorationTransformed = await ExplorationRepository.transformIntoExploration(explorationData);
+      let explorationTransformed = await ExplorationRepository.transformIntoExploration(explorationData, ally);
 
       explorationTransformed.explorer = idExplorer;
 
@@ -114,26 +123,7 @@ class ExplorationsRoutes {
       exploration = exploration.toObject({getters:false, virtuals:false});
       exploration = ExplorationRepository.transform(exploration);
 
-      res.status(201).json(exploration);
-
-      //Ajouter dans la base de données! (À faire plus tard)
-      //let exploration = await ExplorationRepository.create(req.body);
-      //exploration = exploration.toObject({getters:false, virtuals:false});
-      //exploration = ExplorationRepository.transform(exploration);
-      //res.status(201).json({exploration, tokens});
-    } catch (err) {
-      return next(err);
-    }
-  }
-
-  // Création d'une exploration
-  async capture(req, res, next) {
-    try {
-      const explorationKey = req.params.idExploration;
-
-      let explorationData;
-
-      res.status(201).json("fonctionne");
+      res.status(201).json({exploration, ally});
 
       //Ajouter dans la base de données! (À faire plus tard)
       //let exploration = await ExplorationRepository.create(req.body);

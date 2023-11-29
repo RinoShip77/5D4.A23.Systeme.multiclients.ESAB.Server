@@ -18,7 +18,7 @@ class AllyRepository {
 
     retrieveAll(idExplorer)
     {
-        const retrieveQuery = Ally.findAll(idExplorer);
+        const retrieveQuery = Ally.find({'explorer':{$in:idExplorer}});
         
         return retrieveQuery;
     }
@@ -28,7 +28,7 @@ class AllyRepository {
 
         //Peut-être plus tard
         //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
-
+        ally.href = `${process.env.BASE_URL}/explorers/${ally.explorer}/allies/${ally._id}`;
         delete ally._id;
         delete ally.__v;
 

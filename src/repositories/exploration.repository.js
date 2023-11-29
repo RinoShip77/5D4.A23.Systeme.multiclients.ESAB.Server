@@ -4,17 +4,16 @@ class ExplorationRepository {
 
     retrieveAll(idExplorer)
     {
-        const retrieveQuery = Exploration.find(idExplorer);
-        retrieveQuery.populate('explorer');
+        const retrieveQuery = Exploration.find({'explorer':{$in:idExplorer}});
         
         return retrieveQuery;
     }
 
     // Permet de récupérer un ally à partir d'un id
-    retrieveById(idExploration) {
+    retrieveById(idExploration, idExplorer) {
 
+        //const retrieveQuery = Exploration.find({$and: [ {'explorer': {$in:idExplorer}}, {'_id':{$in:idExploration}}]});
         const retrieveQuery = Exploration.findById(idExploration);
-        retrieveQuery.populate('explorer');
 
         return retrieveQuery;
     }
@@ -30,12 +29,12 @@ class ExplorationRepository {
     transform(exploration, transformOptions = {}) {
 
         //Peut-être plus tard
-        //exploration.href = `${process.env.BASE_URL}/explorers/${exploration._id}`;
-        //exploration.capture_href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/ally/${exploration.ally}`;
+        exploration.href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/explorations/${exploration._id}`;
+        exploration.capture_href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/allies/${exploration.ally}`;
 
-        //delete exploration.{"_id": {$in: elements}};
-        delete exploration.ally;
+        delete exploration._id;
         delete exploration.__v;
+        delete exploration.ally;
         delete exploration.explorer;
 
         return exploration;
@@ -44,12 +43,18 @@ class ExplorationRepository {
 
     // Permet de retirer les imformations sesnsibles d'une exploration et créer son href avant de le retourner
     // TODO: Vérifier si on a besoin
-    transformIntoExploration(explorationData, transformOptions = {}) {
+    transformIntoExploration(explorationData, ally, transformOptions = {}) {
 
         //Peut-être plus tard
         //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
 
         delete explorationData.ally;
+
+        if(ally)
+        {
+            explorationData.ally = ally._id;
+        }
+
         delete explorationData.__v;
 
         return explorationData;

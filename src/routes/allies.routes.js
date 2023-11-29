@@ -10,8 +10,9 @@ const router = express.Router();
 
 class AlliesRoutes {
     constructor() {
-        router.get('/:idExplorer/allies', authorizationJWT, this.getAll); //Trouver les allies d'un explorateur
-        router.get('/:idExplorer/:idAlly', authorizationJWT, this.getOne); //Trouver un ally précis d'un explorateur
+        router.get('/:idExplorer/allies', this.getAll); //Trouver les allies d'un explorateur
+        router.get('/:idExplorer/allies/:idAlly', authorizationJWT, this.getOne); //Trouver un ally précis d'un explorateur
+        router.post('/:idExplorer/allies/:idAlly', authorizationJWT, this.post); //Explorer
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -56,7 +57,7 @@ class AlliesRoutes {
           
           const idExplorer = req.params.idExplorer;
     
-          const allies = AllyRepository.retrieveAll(idExplorer);
+          let allies = await AllyRepository.retrieveAll(idExplorer);
 
           //Pour la pagination
           //const pageCount = Math.ceil(itemsCount / req.query.limit);
@@ -65,7 +66,7 @@ class AlliesRoutes {
 
           allies = allies.map(a => {
             a = a.toObject({getters:false, virtuals:false});
-            a = ordersRepository.transform(a);
+            a = AllyRepository.transform(a);
             return a;
           });
     
@@ -76,6 +77,25 @@ class AlliesRoutes {
           return next(error);
         }
     }  
+
+    // Capture d'un ally
+    async post(req, res, next) {
+      try {
+        const explorationKey = req.params.idExploration;
+
+        let explorationData;
+
+        res.status(201).json("fonctionne");
+
+        //Ajouter dans la base de données! (À faire plus tard)
+        //let exploration = await ExplorationRepository.create(req.body);
+        //exploration = exploration.toObject({getters:false, virtuals:false});
+        //exploration = ExplorationRepository.transform(exploration);
+        //res.status(201).json({exploration, tokens});
+      } catch (err) {
+        return next(err);
+      }
+    }
 }
 
 new AlliesRoutes();

@@ -28,13 +28,19 @@ const allySchema = mongoose.Schema({
     [
 
     ],
-    uuid: {type: Number, required:true, unique:true},
-    archiveIndex: {type: Number, required:true, unique:true},
+    uuid: {type: String, required:true, unique:true},
+    archiveIndex: {type: Number, required:true, unique:false},
     href: {type: String, required:true},
     asset: {type: String, required:true},
     createdAt: {type: String, required:true},
     updatedAt: {type: String, required:true},
-    expireAt: {type: String, required:true}
+    expireAt: {type: String, required:true},
+
+    explorer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Explorer',
+        required: true
+    },
 });
 
 const Ally = new mongoose.model('Ally', allySchema);
