@@ -16,8 +16,8 @@ class ExplorersRoutes {
         // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
         router.get('/:idExplorer', authorizationJWT, this.getOne); // Trouver infos explorateur
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
-        router.get('/actions/login', this.login); // Connexion
-        router.delete('/actions/logout', this.logout); // Déco, blacklist du token
+        router.post('/actions/login', this.login); // Connexion
+        router.get('/actions/logout', this.logout); // Déco, blacklist du token
       }
 
     // Route pour la connexion
