@@ -103,8 +103,13 @@ class ExplorationsRoutes {
         });
 
       let ally;
-      let allyData = explorationData.ally;
-      allyData.explorer = idExplorer;
+      let allyData;
+
+      if(ally)
+      {
+        allyData = explorationData.ally;
+        allyData.explorer = idExplorer;
+      }
       
       if(allyData)
       {
@@ -123,7 +128,47 @@ class ExplorationsRoutes {
       exploration = exploration.toObject({getters:false, virtuals:false});
       exploration = ExplorationRepository.transform(exploration);
 
-      res.status(201).json({exploration, ally});
+      //Lance un random pour déterminer si on renvoit un bonus chest ou non
+      let bonusChest;
+      let randomChanceChest = Math.floor(Math.random() * 10);
+
+      //random d'array pour les élements
+      //random quantité
+      let elementsArray = ["test", "test1", "test2", "test3"];
+
+      //1 à 3
+      //let randomElementQuantity = Math.floor(Math.random() * 10)
+      let randomElement = elementsArray[Math.floor(Math.random() * elementsArray.length)];
+      let randomQuantity = Math.floor(Math.random() * 10);
+
+      //On ne veut pas offrir un quantité de 0
+      if(randomQuantity == 0)
+      {
+        randomQuantity++;
+      }
+
+      //2 chances sur 10
+      if(randomChanceChest == 1 || randomChanceChest == 2)
+      {
+        bonusChest = 
+        {
+          //nombre d'inox random entre 1 et 10
+          "inox": Math.floor(Math.random() * 10),
+          "elements": 
+          [
+            {
+              "element": randomElement,
+              "quantity": randomQuantity
+            }
+          ]
+        }
+      }
+
+      exploration.ally = ally;
+      exploration.chance = randomChanceChest;
+      exploration.bonusChest = bonusChest;
+
+      res.status(201).json(exploration);
 
       //Ajouter dans la base de données! (À faire plus tard)
       //let exploration = await ExplorationRepository.create(req.body);

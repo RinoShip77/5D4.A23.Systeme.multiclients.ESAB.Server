@@ -29,7 +29,7 @@ const allySchema = mongoose.Schema({
 
     ],
     uuid: {type: String, required:true, unique:true},
-    archiveIndex: {type: Number, required:true, unique:false},
+    archiveIndex: {type: Number, required:false, unique:false},
     href: {type: String, required:true},
     asset: {type: String, required:true},
     createdAt: {type: String, required:true},
