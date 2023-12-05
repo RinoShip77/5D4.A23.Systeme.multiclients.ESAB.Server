@@ -3,8 +3,9 @@ import HttpError from 'http-errors';
 import { mongoose } from 'mongoose';
 import axios from 'axios';
 import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
-
+import elements from '../utils/elements.js'
 import ExplorationRepository from "../repositories/exploration.repository.js"
+import ExplorerRepository from "../repositories/explorer.repository.js"
 import allyRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
@@ -44,6 +45,8 @@ class ExplorationsRoutes {
       // Peut-être besoin de transform plus tard
       // exploration = explorationRepository.transform(exploration, retrieveOptions);
 
+      //return location
+
       res.json(exploration).status(200);
     } catch (error) {
       return next(error);
@@ -82,6 +85,13 @@ class ExplorationsRoutes {
     } catch (error) {
       return next(error);
     }
+  }
+
+  // Mettre à jour la location d'un explorer
+  async updateExplorerLocation(idExplorer, location) {
+    let explorer = await ExplorerRepository.retrieveById(idExplorer);
+
+    explorer.location = location;
   }
 
   // Création d'une exploration
@@ -126,47 +136,96 @@ class ExplorationsRoutes {
       let exploration = await ExplorationRepository.create(explorationTransformed);
 
       exploration = exploration.toObject({getters:false, virtuals:false});
-      exploration = ExplorationRepository.transform(exploration);
+      exploration = await ExplorationRepository.transform(exploration);
 
       //Lance un random pour déterminer si on renvoit un bonus chest ou non
       let bonusChest;
       let randomChanceChest = Math.floor(Math.random() * 10);
 
-      //random d'array pour les élements
-      //random quantité
-      let elementsArray = ["test", "test1", "test2", "test3"];
 
       //1 à 3
-      //let randomElementQuantity = Math.floor(Math.random() * 10)
-      let randomElement = elementsArray[Math.floor(Math.random() * elementsArray.length)];
-      let randomQuantity = Math.floor(Math.random() * 10);
+      const max = 2;
+      const min = 0;
+      const randomElementQuantity = Math.random() * (max - min + 1) + min;
 
-      //On ne veut pas offrir un quantité de 0
-      if(randomQuantity == 0)
+      let randomElements = new Array();
+      for(let i = 0; i < randomElementQuantity; i++ )
       {
-        randomQuantity++;
+        let randomQuantity = Math.floor(Math.random() * 10);
+
+        //On ne veut pas offrir un quantité de 0
+        if(randomQuantity == 0)
+        {
+          randomQuantity++;
+        }
+
+        randomElements.push({"element" : elements[Math.floor(Math.random() * elements.length)].symbol, "quantity" : randomQuantity});
       }
+      
 
       //2 chances sur 10
-      if(randomChanceChest == 1 || randomChanceChest == 2)
+      if(randomChanceChest <= 2)
       {
         bonusChest = 
         {
           //nombre d'inox random entre 1 et 10
-          "inox": Math.floor(Math.random() * 10),
-          "elements": 
-          [
-            {
-              "element": randomElement,
-              "quantity": randomQuantity
-            }
-          ]
+          inox: Math.floor(Math.random() * 10),
+          elements: randomElements
         }
       }
 
       exploration.ally = ally;
       exploration.chance = randomChanceChest;
       exploration.bonusChest = bonusChest;
+
+      // Ici je retrieve l'explorer pour modifier sa location
+      let explorer = await ExplorerRepository.retrieveById(idExplorer);
+      explorer.location = exploration.destination;
+
+      // Ajouter elements de l'exploration
+      if(exploration.vault.inox)
+      {
+        explorer.inventory.inox += exploration.vault.inox;
+
+        // exploration.vault.elements.filter(elementExploration => explorer.inventory.elements.filter(elementExplorer => elementExploration ==))
+        exploration.vault.elements.forEach(elementExploration => {
+          let exist = false;
+          explorer.inventory.elements.forEach(elementExplorer => {
+            if(elementExploration.element === elementExplorer.element) {
+              elementExplorer.quantity += elementExploration.element;
+              exist = true;
+            }
+          });
+
+          if(!exist)
+            explorer.inventory.elements.push(elementExploration);
+        });
+
+      }
+
+      // Ajouter elements dans bonusChest
+      if(bonusChest)
+      {
+        explorer.inventory.inox += bonusChest.inox;
+
+        // exploration.vault.elements.filter(elementExploration => explorer.inventory.elements.filter(elementExplorer => elementExploration ==))
+        bonusChest.elements.forEach(elementBonus=> {
+          let exist = false;
+          explorer.inventory.elements.forEach(elementExplorer => {
+            if(elementBonus.element === elementExplorer.element) {
+              elementExplorer.quantity += elementBonus.element;
+              exist = true;
+            }
+          });
+
+          if(!exist)
+            explorer.inventory.elements.push(elementBonus);
+        });
+
+      }
+
+      // Je dois maintenant le sauvegarder AWAIT IMPORTANT pour UPDATE des inox et elements en BD!
+      await ExplorerRepository.update(idExplorer, explorer);
 
       res.status(201).json(exploration);
 

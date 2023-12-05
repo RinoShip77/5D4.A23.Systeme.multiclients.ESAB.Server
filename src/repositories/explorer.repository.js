@@ -98,6 +98,11 @@ class ExplorerRepository {
         return explorer;
 
     }
+
+    update(idExplorer, newExplorer) {
+        const filter = { _id: idExplorer};
+        return Explorer.findOneAndUpdate(filter, { $set: Object.assign(newExplorer) }, { new: true, runValidators: true });
+    }
 }
 
 export default new ExplorerRepository();

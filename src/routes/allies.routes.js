@@ -81,7 +81,6 @@ class AlliesRoutes {
     // Capture d'un ally
     async post(req, res, next) {
       try {
-        const explorationKey = req.params.idExploration;
 
         let explorationData;
 

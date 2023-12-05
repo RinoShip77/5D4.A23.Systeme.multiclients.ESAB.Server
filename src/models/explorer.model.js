@@ -7,6 +7,7 @@ const explorerSchema = mongoose.Schema(
     name: {type: String, required:true},
     surname: {type: String, required:true},
     passwordHash: {type:String, required:true},
+    location: {type:String, required:false, default: "inoxis"}, // Vérifier si sa existe
 
     inventory:
     {
@@ -14,7 +15,7 @@ const explorerSchema = mongoose.Schema(
         elements:
         [
             {
-                name: {type: String, required:true},
+                element: {type: String, required:true},
                 quantity: {type: Number, required:true}
             }
         ]
@@ -22,7 +23,8 @@ const explorerSchema = mongoose.Schema(
 },{
     collection:'explorers',
     strict: 'throw',
-    timestamps: true
+    timestamps: true,
+    id: false
 });
 
 explorerSchema.virtual('allies', 

@@ -24,7 +24,7 @@ app.use(cors());
 const limiter = expressRateLimit(
     {
     windowsMs: 10 * 60 * 1000,
-    max: 10,
+    max: 500,
     message:'Too many requests'
     }
 );
