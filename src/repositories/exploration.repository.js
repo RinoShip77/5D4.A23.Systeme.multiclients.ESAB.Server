@@ -30,7 +30,11 @@ class ExplorationRepository {
 
         //Peut-être plus tard
         exploration.href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/explorations/${exploration._id}`;
-        exploration.capture_href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/allies/${exploration.ally}`;
+
+        if(exploration.ally != undefined)
+        {
+            exploration.capture_href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/allies/${exploration.ally}`;
+        }
 
         delete exploration._id;
         delete exploration.__v;

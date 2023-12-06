@@ -82,9 +82,27 @@ class AlliesRoutes {
     async post(req, res, next) {
       try {
 
-        let explorationData;
+        const idExplorer = req.params.idExplorer;
+        const idAlly = req.params.idAlly;
 
-        res.status(201).json("fonctionne");
+
+        let allyData = await AllyRepository.retrieveById(idAlly);
+
+        if(allyData.explorer == undefined)
+        {
+          allyData.explorer = idExplorer;
+        }
+        else
+        {
+          //res.status(201).json("Cet allié a déjà été capturé");
+          //throw "allié non";
+        }
+        
+        
+        let ally = await AllyRepository.update(idAlly, allyData);
+        
+
+        res.status(201).json({Réussi: "Capturé avec succès", ally});
 
         //Ajouter dans la base de données! (À faire plus tard)
         //let exploration = await ExplorationRepository.create(req.body);

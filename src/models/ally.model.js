@@ -39,7 +39,7 @@ const allySchema = mongoose.Schema({
     explorer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Explorer',
-        required: true
+        required: false
     },
 });
 

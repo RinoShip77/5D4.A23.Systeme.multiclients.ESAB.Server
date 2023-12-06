@@ -87,13 +87,6 @@ class ExplorationsRoutes {
     }
   }
 
-  // Mettre à jour la location d'un explorer
-  async updateExplorerLocation(idExplorer, location) {
-    let explorer = await ExplorerRepository.retrieveById(idExplorer);
-
-    explorer.location = location;
-  }
-
   // Création d'une exploration
   async post(req, res, next) {
     try {
@@ -112,15 +105,10 @@ class ExplorationsRoutes {
           return next(err);
         });
 
-      let ally;
       let allyData;
-
-      if(ally)
-      {
-        allyData = explorationData.ally;
-        allyData.explorer = idExplorer;
-      }
+      allyData = explorationData.ally;
       
+      let ally;
       if(allyData)
       {
         ally = await allyRepository.create(allyData);
@@ -137,11 +125,11 @@ class ExplorationsRoutes {
 
       exploration = exploration.toObject({getters:false, virtuals:false});
       exploration = await ExplorationRepository.transform(exploration);
+      exploration.ally = ally;
 
       //Lance un random pour déterminer si on renvoit un bonus chest ou non
       let bonusChest;
       let randomChanceChest = Math.floor(Math.random() * 10);
-
 
       //1 à 3
       const max = 2;
@@ -174,7 +162,6 @@ class ExplorationsRoutes {
         }
       }
 
-      exploration.ally = ally;
       exploration.chance = randomChanceChest;
       exploration.bonusChest = bonusChest;
 
@@ -227,13 +214,13 @@ class ExplorationsRoutes {
       // Je dois maintenant le sauvegarder AWAIT IMPORTANT pour UPDATE des inox et elements en BD!
       await ExplorerRepository.update(idExplorer, explorer);
 
-      res.status(201).json(exploration);
 
       //Ajouter dans la base de données! (À faire plus tard)
       //let exploration = await ExplorationRepository.create(req.body);
       //exploration = exploration.toObject({getters:false, virtuals:false});
       //exploration = ExplorationRepository.transform(exploration);
       //res.status(201).json({exploration, tokens});
+      res.status(201).json(exploration);
     } catch (err) {
       return next(err);
     }

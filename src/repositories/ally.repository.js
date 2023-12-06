@@ -35,6 +35,11 @@ class AllyRepository {
         return ally;
 
     }
+
+    update(idAlly, newAlly) {
+        const filter = { _id: idAlly};
+        return Ally.findOneAndUpdate(filter, { $set: Object.assign(newAlly) }, { new: true, runValidators: true });
+    }
 }
 
 export default new AllyRepository();
