@@ -13,11 +13,12 @@ const router = express.Router();
 
 class ExplorersRoutes {
     constructor() {
-        // router.put('/:idExplorer', explorerValidators.partial(), validator, this.put);
-        router.get('/:idExplorer', authorizationJWT, this.getOne); // Trouver infos explorateur
-        router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorer
+        router.get('/:idExplorer', authorizationJWT, this.getOne); // Trouver infos d'un explorateur selon son id
+        router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorateur
         router.post('/actions/login', this.login); // Connexion
-        router.get('/actions/logout', this.logout); // Déco, blacklist du token
+        router.get('/actions/logout', this.logout); // Déconnexion, blacklist du token
+        router.get('/:idExplorer/leaderboard', this.leaderboard); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
+        router.get('/actions/refreshToken', authorizationJWT, this.refreshToken); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
       }
 
     // Route pour la connexion
@@ -120,6 +121,23 @@ class ExplorersRoutes {
         }
     }
 
+    leaderboard(req, res, next)
+    {
+        const idExplorer = req.params.idExplorer;
+        res.status(201).json("Route en développement", idExplorer);
+    }
+
+    refreshToken(req, res, next)
+    {
+        try 
+        {
+            const tokens = ExplorerRepository.generateJWT(req.refreshToken.email);
+            res.status(201).json(tokens);
+        } catch(err) 
+        {
+            return next(err);
+        }
+    }
 }
 
 new ExplorersRoutes();

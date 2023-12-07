@@ -15,7 +15,7 @@ class ExplorationsRoutes {
   constructor() {
     router.get('/:idExplorer/explorations', authorizationJWT, this.getAll); //Trouver les explorations d'un explorateur
     router.get('/:idExplorer/explorations/:idExploration', authorizationJWT, this.getOne); //Trouver une exploration précise d'un explorateur
-    router.post('/:idExplorer/explorations', authorizationJWT, this.post); //Explorer
+    router.post('/:idExplorer/explorations', authorizationJWT, this.post); //Création d'une exploration à l'aide d'une clé de portal
   }
 
   // Récupérer une exploration à partir d'"un id d'exploration
@@ -97,6 +97,7 @@ class ExplorationsRoutes {
       let url = process.env.PORTAL_URL + explorationKey;
       let explorationData;
 
+      //Appelle le serveur pour aller chercher une exploration
       await axios.get(url)
         .then(res => {
           explorationData = res.data;
@@ -108,6 +109,7 @@ class ExplorationsRoutes {
       let allyData;
       allyData = explorationData.ally;
       
+      //Si on allié est présent dans l'exploration
       let ally;
       if(allyData)
       {
@@ -116,30 +118,38 @@ class ExplorationsRoutes {
         ally = allyRepository.transform(ally);
       }
 
+      //Transformer l'exploration pour la créer dans les données de l'allié
       let explorationTransformed = await ExplorationRepository.transformIntoExploration(explorationData, ally);
 
       explorationTransformed.explorer = idExplorer;
 
-      // let exploration = await ExplorationRepository.create(explorationData.ally);
+      //Crée l'exploration
       let exploration = await ExplorationRepository.create(explorationTransformed);
-
       exploration = exploration.toObject({getters:false, virtuals:false});
       exploration = await ExplorationRepository.transform(exploration);
+
+      //Ajoute le id de l'ally à l'exploration qui sera plus tard mis-à-jour
+      //Suite à plusieurs autres transformations
       exploration.ally = ally;
 
       //Lance un random pour déterminer si on renvoit un bonus chest ou non
       let bonusChest;
       let randomChanceChest = Math.floor(Math.random() * 10);
 
-      //1 à 3
+      //chances de 1 à 3 (minimum de 1 et maximum de 3 éléments bonus)
       const max = 2;
       const min = 0;
       const randomElementQuantity = Math.random() * (max - min + 1) + min;
 
+      //Ajoute un élément bonus selon le nombre aléatoire généré
       let randomElements = new Array();
       for(let i = 0; i < randomElementQuantity; i++ )
       {
-        let randomQuantity = Math.floor(Math.random() * 10);
+        //chances de 1 à 5 (minimum de 5 et maximum de 5 quantité bonus)
+        const maxElementQuantity = 4;
+        const minElementQuantity = 0;
+        //Génere une quantité aléatoire à donner pour l'élément
+        let randomQuantity = Math.random() * (maxElementQuantity - minElementQuantity + 1) + minElementQuantity;
 
         //On ne veut pas offrir un quantité de 0
         if(randomQuantity == 0)
@@ -147,10 +157,10 @@ class ExplorationsRoutes {
           randomQuantity++;
         }
 
+        //Ajout l'élément et sa quantité à la liste
         randomElements.push({"element" : elements[Math.floor(Math.random() * elements.length)].symbol, "quantity" : randomQuantity});
       }
       
-
       //2 chances sur 10
       if(randomChanceChest <= 2)
       {
@@ -158,10 +168,12 @@ class ExplorationsRoutes {
         {
           //nombre d'inox random entre 1 et 10
           inox: Math.floor(Math.random() * 10),
+          //éléments qui équivaut à la liste précédemment générée
           elements: randomElements
         }
       }
 
+      //ajoute les informais à l'Exploration
       exploration.chance = randomChanceChest;
       exploration.bonusChest = bonusChest;
 
@@ -169,44 +181,68 @@ class ExplorationsRoutes {
       let explorer = await ExplorerRepository.retrieveById(idExplorer);
       explorer.location = exploration.destination;
 
-      // Ajouter elements de l'exploration
-      if(exploration.vault.inox)
+      // Si des inox et des éléments sont présent dans l'exploration
+      if(exploration.vault.inox && exploration.vault.elements)
       {
+        //Ajoute les inox de l'Exploration à l'inventaire de l'Explorateur
         explorer.inventory.inox += exploration.vault.inox;
 
-        // exploration.vault.elements.filter(elementExploration => explorer.inventory.elements.filter(elementExplorer => elementExploration ==))
-        exploration.vault.elements.forEach(elementExploration => {
+        //Vérifie dans les éléments de l'exploration
+        exploration.vault.elements.forEach(elementExploration => 
+        {
+          //Constante booléenne pour faire une vérification
           let exist = false;
-          explorer.inventory.elements.forEach(elementExplorer => {
-            if(elementExploration.element === elementExplorer.element) {
+
+          //Vérifie dans les éléments de l'explorateur
+          explorer.inventory.elements.forEach(elementExplorer => 
+          {
+            //Si les 2 éléments concordent
+            if(elementExploration.element === elementExplorer.element) 
+            {
+              //ajoute une quantité à l'élément à la place d'en créer un nouveau
               elementExplorer.quantity += elementExploration.element;
               exist = true;
             }
           });
 
+          //S'il existe pas, ajoute un nouvel éléement à l'inventaire de l'explorateur
           if(!exist)
+          {
             explorer.inventory.elements.push(elementExploration);
+          }
         });
 
       }
 
-      // Ajouter elements dans bonusChest
+      // Si l'Explorateur a eu la chance d'avoir un bonusChest
       if(bonusChest)
       {
+        //Ajoute les inox de du bonusChest à l'inventaire de l'Explorateur
         explorer.inventory.inox += bonusChest.inox;
 
-        // exploration.vault.elements.filter(elementExploration => explorer.inventory.elements.filter(elementExplorer => elementExploration ==))
-        bonusChest.elements.forEach(elementBonus=> {
+        //Vérifie dans chaque élément du bonusChest
+        bonusChest.elements.forEach(elementBonus=> 
+        {
+          //Constante booléenne pour faire une vérification
           let exist = false;
-          explorer.inventory.elements.forEach(elementExplorer => {
-            if(elementBonus.element === elementExplorer.element) {
+
+          //Vérifie dans chaque élément de l'Explorateur
+          explorer.inventory.elements.forEach(elementExplorer => 
+          {
+            //Si les 2 éléments concordent
+            if(elementBonus.element === elementExplorer.element) 
+            {
+              //ajoute une quantité à l'élément à la place d'en créer un nouveau
               elementExplorer.quantity += elementBonus.element;
               exist = true;
             }
           });
 
+          //S'il existe pas, ajoute un nouvel éléement à l'inventaire de l'explorateur
           if(!exist)
+          {
             explorer.inventory.elements.push(elementBonus);
+          }
         });
 
       }
@@ -214,17 +250,13 @@ class ExplorationsRoutes {
       // Je dois maintenant le sauvegarder AWAIT IMPORTANT pour UPDATE des inox et elements en BD!
       await ExplorerRepository.update(idExplorer, explorer);
 
-
-      //Ajouter dans la base de données! (À faire plus tard)
-      //let exploration = await ExplorationRepository.create(req.body);
-      //exploration = exploration.toObject({getters:false, virtuals:false});
-      //exploration = ExplorationRepository.transform(exploration);
-      //res.status(201).json({exploration, tokens});
       res.status(201).json(exploration);
     } catch (err) {
       return next(err);
     }
   }
+
+  
 }
 
 new ExplorationsRoutes();

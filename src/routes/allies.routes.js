@@ -4,15 +4,15 @@ import { mongoose } from 'mongoose';
 import { authorizationJWT, refreshJWT } from '../middlewares/authorization.jwt.js';
 
 import AllyRepository from "../repositories/ally.repository.js"
-import allyRepository from '../repositories/ally.repository.js';
+import ExplorerRepository from '../repositories/explorer.repository.js';
 
 const router = express.Router();
 
 class AlliesRoutes {
     constructor() {
-        router.get('/:idExplorer/allies', this.getAll); //Trouver les allies d'un explorateur
-        router.get('/:idExplorer/allies/:idAlly', authorizationJWT, this.getOne); //Trouver un ally précis d'un explorateur
-        router.post('/:idExplorer/allies/:idAlly', authorizationJWT, this.post); //Explorer
+        router.get('/:idExplorer/allies', authorizationJWT, this.getAll); //Trouver les alliés d'un explorateur
+        router.get('/:idExplorer/allies/:idAlly', authorizationJWT, this.getOne); //Trouver un allié précis d'un explorateur
+        router.post('/:idExplorer/allies/:idAlly', this.post); //Création d'un ally (capture de l'ally de l'exploration)
       }
     
     // Récupérer une exploration à partir d'"un id d'exploration
@@ -85,30 +85,59 @@ class AlliesRoutes {
         const idExplorer = req.params.idExplorer;
         const idAlly = req.params.idAlly;
 
-
         let allyData = await AllyRepository.retrieveById(idAlly);
+        let explorer = await ExplorerRepository.retrieveById(idExplorer);
 
-        if(allyData.explorer == undefined)
+        //Erreur
+        //Si le ally appartient déjà à quelqu'un, il ne peut pas être capturé
+        if(allyData.explorer != undefined)
         {
-          allyData.explorer = idExplorer;
+          return res.status(409).json("Cet allié a déjà été capturé");
         }
-        else
+
+        //constantes et variables pour vérifier les élements du
+        //ally et de l'explorer, pour être en mesure de payer
+        const elementsAlly = allyData.kernel;
+        const elementsExplorer = explorer.inventory.elements;
+
+        //Vérifie pour chaque élément de l'ally
+        for(let i = 0; i < elementsAlly.length; i++)
         {
-          //res.status(201).json("Cet allié a déjà été capturé");
-          //throw "allié non";
+          //Variable pour vérifié si l'élément est présent dans l'inventaire de l'Explorateur et payé
+          let elementPayed = false;
+
+          //Vérifie pour chaque élément de l'explorateur
+          for(let j = 0; j < elementsExplorer.length; j++)
+          {
+            //Si les 2 éléments correspondent et que l'explorer en a au moins 1
+            if((elementsExplorer[j].element == elementsAlly[i]) && (elementsExplorer[j].quantity > 0))
+            {
+              //Liste pour garder à jour le nombre d'éléments requis, présents dans l'inventaire de l'explorateur
+              nbElementsPayed++;
+
+              //Paye l'élément qui correspond et le retire d el'inventaire de l'explorateur
+              explorer.inventory.elements[j].quantity = explorer.inventory.elements[j].quantity - 1;
+
+              elementPayed = true;
+            }
+          }
+
+          //Erreur
+          //Si l'explorateur n'a pas pu payer l'élément
+          if(!elementPayed)
+          {
+            return res.status(409).json("Vous n'avez pas assez d'éléments pour payer cet allié");
+          }
         }
-        
-        
+
+        //Si tous les contraintes sont respectées, on update l'ally et l'explorateur
+        allyData.explorer = idExplorer;
         let ally = await AllyRepository.update(idAlly, allyData);
+        ally = ally.toObject({getters:false, virtuals:false});
+        ally = await AllyRepository.transform(ally);
+        await ExplorerRepository.update(idExplorer, explorer);
         
-
         res.status(201).json({Réussi: "Capturé avec succès", ally});
-
-        //Ajouter dans la base de données! (À faire plus tard)
-        //let exploration = await ExplorationRepository.create(req.body);
-        //exploration = exploration.toObject({getters:false, virtuals:false});
-        //exploration = ExplorationRepository.transform(exploration);
-        //res.status(201).json({exploration, tokens});
       } catch (err) {
         return next(err);
       }
