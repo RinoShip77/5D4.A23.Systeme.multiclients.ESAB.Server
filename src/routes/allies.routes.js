@@ -32,7 +32,7 @@ class AlliesRoutes {
     
           if (!ally)
           {
-            return next(HttpError.NotFound(`Le client avec l'id "${idAlly}" n'existe pas!`));
+            return next(HttpError.NotFound(`l'ally avec l'id "${idAlly}" n'existe pas!`));
           }
     
           ally = ally.toObject({ getters: false, virtuals: true });

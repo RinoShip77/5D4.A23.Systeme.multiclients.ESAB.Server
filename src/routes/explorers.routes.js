@@ -16,7 +16,7 @@ class ExplorersRoutes {
         router.get('/:idExplorer', authorizationJWT, this.getOne); // Trouver infos d'un explorateur selon son id
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorateur
         router.post('/actions/login', this.login); // Connexion
-        router.get('/actions/logout', this.logout); // Déconnexion, blacklist du token
+        router.get('/actions/logout', authorizationJWT, this.logout); // Déconnexion, blacklist du token
         router.get('/:idExplorer/leaderboard', this.leaderboard); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
         router.get('/actions/refreshToken', authorizationJWT, this.refreshToken); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
       }
