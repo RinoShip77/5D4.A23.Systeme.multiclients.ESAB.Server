@@ -112,8 +112,6 @@ class AlliesRoutes {
             //Si les 2 éléments correspondent et que l'explorer en a au moins 1
             if((elementsExplorer[j].element == elementsAlly[i]) && (elementsExplorer[j].quantity > 0))
             {
-              //Liste pour garder à jour le nombre d'éléments requis, présents dans l'inventaire de l'explorateur
-              nbElementsPayed++;
 
               //Paye l'élément qui correspond et le retire d el'inventaire de l'explorateur
               explorer.inventory.elements[j].quantity = explorer.inventory.elements[j].quantity - 1;

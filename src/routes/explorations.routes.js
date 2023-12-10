@@ -111,10 +111,12 @@ class ExplorationsRoutes {
       
       //Si on allié est présent dans l'exploration
       let ally;
+      let idAlly;
       if(allyData)
       {
         ally = await allyRepository.create(allyData);
         ally = ally.toObject({getters:false, virtuals:false});
+        idAlly = ally._id;
         ally = allyRepository.transform(ally);
       }
 
@@ -122,15 +124,15 @@ class ExplorationsRoutes {
       let explorationTransformed = await ExplorationRepository.transformIntoExploration(explorationData, ally);
 
       explorationTransformed.explorer = idExplorer;
+      explorationTransformed.ally = idAlly;
 
       //Crée l'exploration
       let exploration = await ExplorationRepository.create(explorationTransformed);
       exploration = exploration.toObject({getters:false, virtuals:false});
-      exploration = await ExplorationRepository.transform(exploration);
+      exploration = ExplorationRepository.transform(exploration);
 
       //Ajoute le id de l'ally à l'exploration qui sera plus tard mis-à-jour
       //Suite à plusieurs autres transformations
-      exploration.ally = ally;
 
       //Lance un random pour déterminer si on renvoit un bonus chest ou non
       let bonusChest;
