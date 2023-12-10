@@ -111,7 +111,7 @@ class ExplorersRoutes {
 
         try {
             let explorer = await ExplorerRepository.create(newExplorer);
-
+ 
             explorer = explorer.toObject({getters:false, virtuals:false});
             explorer = ExplorerRepository.transform(explorer);
             const tokens = ExplorerRepository.generateJWT(explorer.email);
@@ -131,7 +131,7 @@ class ExplorersRoutes {
     {
         try 
         {
-            const tokens = ExplorerRepository.generateJWT(req.refreshToken.email);
+            const tokens = ExplorerRepository.generateJWT(req.body.refreshToken.email);
             res.status(201).json(tokens);
         } catch(err) 
         {

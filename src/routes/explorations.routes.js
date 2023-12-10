@@ -149,7 +149,7 @@ class ExplorationsRoutes {
         const maxElementQuantity = 4;
         const minElementQuantity = 0;
         //Génere une quantité aléatoire à donner pour l'élément
-        let randomQuantity = Math.random() * (maxElementQuantity - minElementQuantity + 1) + minElementQuantity;
+        let randomQuantity = Math.floor(Math.random() * (maxElementQuantity - minElementQuantity + 1) + minElementQuantity);
 
         //On ne veut pas offrir un quantité de 0
         if(randomQuantity == 0)
@@ -162,7 +162,7 @@ class ExplorationsRoutes {
       }
       
       //2 chances sur 10
-      if(randomChanceChest <= 2)
+      if(randomChanceChest <= 1)
       {
         bonusChest = 
         {
