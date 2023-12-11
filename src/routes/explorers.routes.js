@@ -152,7 +152,7 @@ class ExplorersRoutes {
                     explorer = explorer.toObject({getters:false, virtuals:false});
                     explorer = ExplorerRepository.transform(explorer);
 
-                    return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
+                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
                 }
                 case "elements" :
                 {
@@ -176,7 +176,7 @@ class ExplorersRoutes {
                     //et retourne les 25 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
 
-                    return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
+                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
                 }
                 case "allies" :
                 {
@@ -200,7 +200,7 @@ class ExplorersRoutes {
                     //et retourne les 25 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
                     
-                    return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
+                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
                 }
                 case "explorations" :
                 {
@@ -224,7 +224,7 @@ class ExplorersRoutes {
                     //et retourne les 25 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
 
-                    return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
+                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
                 }
             }
         }

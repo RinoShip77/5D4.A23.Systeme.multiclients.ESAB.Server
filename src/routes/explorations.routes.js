@@ -147,7 +147,7 @@ class ExplorationsRoutes {
       let randomElements = new Array();
       for(let i = 0; i < randomElementQuantity; i++ )
       {
-        //chances de 1 à 5 (minimum de 5 et maximum de 5 quantité bonus)
+        //chances de 1 à 5 (minimum de 1 et maximum de 5 quantité bonus)
         const maxElementQuantity = 4;
         const minElementQuantity = 0;
         //Génere une quantité aléatoire à donner pour l'élément

@@ -30,6 +30,7 @@
         "http-errors": "^2.0.0",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^7.5.0",
+        "node-schedule": "^2.1.1",
         "uuid": "^9.0.1"
     }
 }

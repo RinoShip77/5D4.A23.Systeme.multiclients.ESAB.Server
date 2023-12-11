@@ -50,6 +50,11 @@ class ExplorerRepository {
         }
     }
 
+    retrieveAll()
+    {
+        return Explorer.find();
+    }
+
     // Permet de récupérer un ally à partir d'un id
     retrieveById(idExplorer) {
 
@@ -140,10 +145,12 @@ class ExplorerRepository {
 
     }
 
-    update(idExplorer, newExplorer) {
+    update(idExplorer, newExplorer) 
+    {
         const filter = { _id: idExplorer};
         return Explorer.findOneAndUpdate(filter, { $set: Object.assign(newExplorer) }, { new: true, runValidators: true });
     }
+
 
     sortBy(leaderboards, order)
     {
