@@ -70,6 +70,46 @@ class ExplorerRepository {
         return retrieveQuery;
     }
 
+    async retrieveOrderedBy(idExplorer, order)
+    {
+        const orderChoices = ["inox", "elements", "allies", "explorations"]
+
+        const explorerQuery = Explorer.findById(idExplorer);
+
+        let leaderboardsQuery;
+        if(orderChoices.includes(order))
+        {
+            switch(order)
+            {
+                case "inox" :
+                {
+                    leaderboardsQuery = Explorer.find().limit(25).sort('-inventory.inox');
+                }
+                case "elements" :
+                {
+                    leaderboardsQuery = Explorer.find().limit(25).sort('-inventory.elements.quantity');
+                }
+                case "allies" :
+                {
+                    //pas fait
+                    leaderboardsQuery = Explorer.find();
+
+                    leaderboardsQuery.populate('allies');
+                    explorerQuery.populate('allies');
+                }
+                case "explorations" :
+                {
+                    leaderboardsQuery = Explorer.find();
+
+                    leaderboardsQuery.populate('explorations');
+                    explorerQuery.populate('explorations');
+                }
+            }
+        }
+
+        return await Promise.all([leaderboardsQuery, explorerQuery]);
+    }
+
     // Création d'un explorer
     async create(explorer) {
 
@@ -102,6 +142,54 @@ class ExplorerRepository {
     update(idExplorer, newExplorer) {
         const filter = { _id: idExplorer};
         return Explorer.findOneAndUpdate(filter, { $set: Object.assign(newExplorer) }, { new: true, runValidators: true });
+    }
+
+    sortBy(leaderboards, order)
+    {
+        if(order == "explorations")
+        {
+            //Tri par le nombre d'explorations faites
+            for(let i = 0; i<leaderboards.length; i++)
+            {
+                for(let j = 0; j<leaderboards.length; j++)
+                {
+                    if(leaderboards[j].explorations.length < leaderboards[i].explorations.length)
+                    {
+                        [leaderboards[i], leaderboards[j]] = [leaderboards[j], leaderboards[i]];
+                    }
+                }
+            }
+        }
+        else if (order == "allies")
+        {
+            //Tri par le nombre d'allies
+            for(let i = 0; i<leaderboards.length; i++)
+            {
+                let iundef = false;
+                if(leaderboards[i].allies == undefined)
+                {
+                    leaderboards[i].allies = new Array();
+                    iundef = true;
+                }
+                
+                for(let j = 0; j<leaderboards.length; j++)
+                {
+                    if(leaderboards[j].allies == undefined)
+                    {
+                        leaderboards[j].allies = new Array();
+                    }
+
+                    if(leaderboards[i].allies.length > leaderboards[j].allies.length)
+                    {
+                        [leaderboards[j], leaderboards[i]] = [leaderboards[i], leaderboards[j]];
+                        leaderboards[j].test = "test : " + leaderboards[j].allies.length;
+                    }
+                }
+            }
+        }
+    
+        //retourne les 25 premiers
+        return leaderboards.slice(0, 25);
     }
 }
 
