@@ -187,8 +187,6 @@ class ExplorerRepository {
                     }
                 }
             }
-
-            return leaderboards;
         }
         else if (order = "elements")
         {
