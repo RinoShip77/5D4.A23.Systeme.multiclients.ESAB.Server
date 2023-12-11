@@ -77,37 +77,37 @@ class ExplorerRepository {
         const explorerQuery = Explorer.findById(idExplorer);
 
         let leaderboardsQuery;
+        
         if(orderChoices.includes(order))
         {
-            switch(order)
+            if(order == "inox")
             {
-                case "inox" :
-                {
-                    leaderboardsQuery = Explorer.find().limit(25).sort('-inventory.inox');
-                }
-                case "elements" :
-                {
-                    leaderboardsQuery = Explorer.find().limit(25).sort('-inventory.elements.quantity');
-                }
-                case "allies" :
-                {
-                    //pas fait
-                    leaderboardsQuery = Explorer.find();
-
-                    leaderboardsQuery.populate('allies');
-                    explorerQuery.populate('allies');
-                }
-                case "explorations" :
-                {
-                    leaderboardsQuery = Explorer.find();
-
-                    leaderboardsQuery.populate('explorations');
-                    explorerQuery.populate('explorations');
-                }
+                leaderboardsQuery = Explorer.find().limit(25).sort('-inventory.inox');
             }
+            if(order == "elements")
+            {
+                leaderboardsQuery = Explorer.find();
+            }
+            if(order == "allies")
+            {
+                //pas fait
+                leaderboardsQuery = Explorer.find();
+
+                leaderboardsQuery.populate('allies');
+                explorerQuery.populate('allies');
+            }
+            if(order == "explorations")
+            {
+                leaderboardsQuery = Explorer.find();
+
+                leaderboardsQuery.populate('explorations');
+                explorerQuery.populate('explorations');
+            }
+            
+            return await Promise.all([leaderboardsQuery, explorerQuery]);
+            
         }
 
-        return await Promise.all([leaderboardsQuery, explorerQuery]);
     }
 
     // Création d'un explorer
@@ -121,6 +121,7 @@ class ExplorerRepository {
             throw err;
         }
     }
+    
 
     // Permet de retirer les imformations sesnsibles d'un explorer et créer son href avant de le retourner
     transform(explorer, transformOptions = {}) {
@@ -188,6 +189,34 @@ class ExplorerRepository {
             }
 
             return leaderboards;
+        }
+        else if (order = "elements")
+        {
+            //Tri par le nombre d'allies
+            for(let i = 0; i<leaderboards.length; i++)
+            {
+                let firstExplorerElementQuantity = 0
+
+                for(let j = 0; j < leaderboards[i].inventory.elements.length; j++)
+                {
+                    firstExplorerElementQuantity += leaderboards[i].inventory.elements[j].quantity;
+                }
+
+                for(let k= 0; k<leaderboards.length; k++)
+                {
+                    let secondExplorerElementQuantity = 0
+
+                    for(let h = 0; h < leaderboards[k].inventory.elements.length; h++)
+                    {
+                        secondExplorerElementQuantity += leaderboards[k].inventory.elements[h].quantity;
+                    }
+
+                    if(firstExplorerElementQuantity > secondExplorerElementQuantity)
+                    {
+                        [leaderboards[i], leaderboards[k]] = [leaderboards[k], leaderboards[i]];
+                    }
+                }
+            }
         }
     
         //retourne les 25 premiers

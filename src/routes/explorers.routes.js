@@ -17,7 +17,7 @@ class ExplorersRoutes {
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorateur
         router.post('/actions/login', this.login); // Connexion
         router.get('/actions/logout', authorizationJWT, this.logout); // Déconnexion, blacklist du token
-        router.get('/:idExplorer/leaderboards', this.leaderboards); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
+        router.get('/:idExplorer/leaderboards/:order', this.leaderboards); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
         router.get('/actions/refreshToken', authorizationJWT, this.refreshToken); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
       }
 
@@ -124,7 +124,7 @@ class ExplorersRoutes {
     async leaderboards(req, res, next)
     {
         const idExplorer = req.params.idExplorer;
-        const order = req.body.order;
+        const order = req.params.order;
 
         const orderChoices = ["inox", "elements", "allies", "explorations"];
 
@@ -139,6 +139,19 @@ class ExplorersRoutes {
                     //Retourne les 25 premiers selon leur nombre d'inox
                     //+ l'explorateur qui fait la demande
                     let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+                    
+                    //Populate et transforme chacun des explorateurs
+                    leaderboards = leaderboards.map(l => 
+                        {
+                            l = l.toObject({ getters: false, virtuals: false });
+                            l = ExplorerRepository.transform(l);
+                            return l;
+                        });
+    
+                    //Populate et transforme l'explorateur qui fait la demande
+                    explorer = explorer.toObject({getters:false, virtuals:false});
+                    explorer = ExplorerRepository.transform(explorer);
+
                     return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
                 }
                 case "elements" :
@@ -146,6 +159,23 @@ class ExplorersRoutes {
                     //Retourne les 25 premiers selon leur nombre d'éléments
                     //+ l'explorateur qui fait la demande
                     let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+
+                    //Populate et transforme chacun des explorateurs
+                    leaderboards = leaderboards.map(l => 
+                        {
+                            l = l.toObject({ getters: false, virtuals: false });
+                            l = ExplorerRepository.transform(l);
+                            return l;
+                        });
+    
+                    //Populate et transforme l'explorateur qui fait la demande
+                    explorer = explorer.toObject({getters:false, virtuals:false});
+                    explorer = ExplorerRepository.transform(explorer);
+
+                    //Order tous le leaderboard par le nombre d'élélments en inventaire
+                    //et retourne les 24 premiers
+                    leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
+
                     return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
                 }
                 case "allies" :
@@ -170,7 +200,6 @@ class ExplorersRoutes {
                     //et retourne les 24 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
                     
-                    return res.status(200).json(leaderboards);
                     return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
                 }
                 case "explorations" :
