@@ -241,7 +241,14 @@ class ExplorersRoutes {
     {
         try 
         {
-            const tokens = ExplorerRepository.generateJWT(req.body.refreshToken.email);
+            let refreshToken = req.body.refreshToken;
+
+            if(refreshToken == undefined || refreshToken == null)
+            {
+                refreshToken = req.refreshToken;
+            }
+
+            const tokens = ExplorerRepository.generateJWT(refreshToken.email);
             res.status(201).json(tokens);
         } catch(err) 
         {

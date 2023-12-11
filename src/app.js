@@ -35,6 +35,7 @@ schedule.scheduleJob('*/5 * * * *', async function()
     {
         explorers[i].inventory.inox = explorers[i].inventory.inox + 2;
         await ExplorerRepository.update(explorers[i]._id, explorers[i]);
+        console.log("2 inox ajoutés à : " + explorers[i].username);
     }
 });
 
@@ -80,6 +81,7 @@ schedule.scheduleJob('0 * * * *', async function()
         }
 
         await ExplorerRepository.update(explorers[i]._id, explorers[i]);
+        console.log("Éléments ajoutés à : " + explorers[i].username);
     }
 });
 
