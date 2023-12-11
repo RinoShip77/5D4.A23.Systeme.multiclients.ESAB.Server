@@ -167,6 +167,9 @@ class ExplorerRepository {
             for(let i = 0; i<leaderboards.length; i++)
             {
                 let iundef = false;
+
+                //Si l'explorateur n'a pas d'allies, ca crée un bug, donc je crée une liste 
+                //vide pour empêche cette erreur
                 if(leaderboards[i].allies == undefined)
                 {
                     leaderboards[i].allies = new Array();
@@ -175,6 +178,8 @@ class ExplorerRepository {
                 
                 for(let j = 0; j<leaderboards.length; j++)
                 {
+                    //Si l'explorateur n'a pas d'allies, ca crée un bug, donc je crée une liste 
+                    //vide pour empêche cette erreur
                     if(leaderboards[j].allies == undefined)
                     {
                         leaderboards[j].allies = new Array();
@@ -195,6 +200,7 @@ class ExplorerRepository {
             {
                 let firstExplorerElementQuantity = 0
 
+                //Compte la quantité d'éléments total de chaque élément du premier explorateur à comparer
                 for(let j = 0; j < leaderboards[i].inventory.elements.length; j++)
                 {
                     firstExplorerElementQuantity += leaderboards[i].inventory.elements[j].quantity;
@@ -204,6 +210,7 @@ class ExplorerRepository {
                 {
                     let secondExplorerElementQuantity = 0
 
+                    //Compte la quantité d'éléments total de chaque élément du deuxième explorateur à comparer
                     for(let h = 0; h < leaderboards[k].inventory.elements.length; h++)
                     {
                         secondExplorerElementQuantity += leaderboards[k].inventory.elements[h].quantity;
