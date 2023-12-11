@@ -172,8 +172,8 @@ class ExplorersRoutes {
                     explorer = explorer.toObject({getters:false, virtuals:false});
                     explorer = ExplorerRepository.transform(explorer);
 
-                    //Order tous le leaderboard par le nombre d'élélments en inventaire
-                    //et retourne les 24 premiers
+                    //Order tous le leaderboard par le nombre d'éléments en inventaire
+                    //et retourne les 25 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
 
                     return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
@@ -197,7 +197,7 @@ class ExplorersRoutes {
                     explorer = ExplorerRepository.transform(explorer);
 
                     //Order tous le leaderboard par le nombre d'explorations
-                    //et retourne les 24 premiers
+                    //et retourne les 25 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
                     
                     return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});
@@ -221,7 +221,7 @@ class ExplorersRoutes {
                     explorer = ExplorerRepository.transform(explorer);
 
                     //Order tous le leaderboard par le nombre d'explorations
-                    //et retourne les 24 premiers
+                    //et retourne les 25 premiers
                     leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
 
                     return res.status(200).json({"top25:" : leaderboards, "you :" : explorer});

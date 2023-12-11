@@ -153,7 +153,7 @@ class ExplorationsRoutes {
         //Génere une quantité aléatoire à donner pour l'élément
         let randomQuantity = Math.floor(Math.random() * (maxElementQuantity - minElementQuantity + 1) + minElementQuantity);
 
-        //On ne veut pas offrir un quantité de 0
+        //On ne veut pas offrir une quantité de 0
         if(randomQuantity == 0)
         {
           randomQuantity++;
