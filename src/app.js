@@ -24,7 +24,8 @@ app.use(express.json());
 app.use(cors());
 
 
-//Ajout de 2 inox à chaque explorateur
+//Ajout de 2 inox, 
+//à chaque explorateur
 //à chaque 5 minutes
 schedule.scheduleJob('*/5 * * * *', async function()
 {
@@ -75,7 +76,6 @@ schedule.scheduleJob('0 * * * *', async function()
             if(!exists)
             {
                 explorers[i].inventory.elements.push(elementToAdd);
-                
             }
         }
 
