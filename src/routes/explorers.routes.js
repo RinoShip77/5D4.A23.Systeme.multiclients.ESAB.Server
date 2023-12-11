@@ -18,7 +18,7 @@ class ExplorersRoutes {
         router.post('/actions/login', this.login); // Connexion
         router.get('/actions/logout', authorizationJWT, this.logout); // Déconnexion, blacklist du token
         router.get('/:idExplorer/leaderboards/:order', this.leaderboards); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
-        router.post('/actions/refreshToken', authorizationJWT, this.refreshToken); // refresh des tokens
+        router.post('/actions/refreshToken', refreshJWT, this.refreshToken); // refresh des tokens
       }
 
     // Route pour la connexion
