@@ -186,6 +186,8 @@ class ExplorerRepository {
                     }
                 }
             }
+
+            return leaderboards;
         }
     
         //retourne les 25 premiers
