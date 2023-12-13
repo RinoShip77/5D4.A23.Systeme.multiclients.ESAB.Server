@@ -179,6 +179,11 @@ class ExplorationsRoutes {
       exploration.chance = randomChanceChest;
       exploration.bonusChest = bonusChest;
 
+      if(ally)
+      {
+        exploration.ally = ally;
+      }
+
       // Ici je retrieve l'explorer pour modifier sa location
       let explorer = await ExplorerRepository.retrieveById(idExplorer);
       explorer.location = exploration.destination;
