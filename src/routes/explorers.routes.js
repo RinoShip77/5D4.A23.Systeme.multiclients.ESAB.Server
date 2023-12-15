@@ -101,12 +101,12 @@ class ExplorersRoutes {
         let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
         let usernameSearch = await ExplorerRepository.retrieveByUsername(newExplorer.username);
 
-        if(emailSearch.length)
+        if(emailSearch)
         {
             return next(HttpError.Conflict("L'addresse email existe déja dans la base de données."));
         }
 
-        if(usernameSearch.length)
+        if(usernameSearch)
         {
             return next(HttpError.Conflict("Le username existe déjà dans la base de données."));
         }

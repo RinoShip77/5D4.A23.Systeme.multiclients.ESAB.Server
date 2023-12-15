@@ -11,12 +11,12 @@ const explorerSchema = mongoose.Schema(
 
     inventory:
     {
-        inox: {type: Number, required:true},
+        inox: {type: Number, required:true, default: 0},
         elements:
         [
             {
-                element: {type: String, required:true},
-                quantity: {type: Number, required:true}
+                element: {type: String, required:false},
+                quantity: {type: Number, required:false}
             }
         ]
     }
