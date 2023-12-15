@@ -20,7 +20,6 @@ class AlliesRoutes {
     {
         try 
         {
-    
           const idExplorer = req.params.idExplorer;
           const idAlly = req.params.idAlly;
     
@@ -30,6 +29,20 @@ class AlliesRoutes {
           if (!ally)
           {
             return next(HttpError.NotFound(`l'ally avec l'id "${idAlly}" n'existe pas!`));
+          }
+
+          //Si l'ally n'a pas encore été capturé
+          if (ally.explorer == undefined)
+          {
+            return next(HttpError.Unauthorized(`l'ally ne vous appartient pas`));
+          }
+
+          //Vérifie si le token correspond à l'explorateur trouvé
+          let explorer = await ExplorerRepository.retrieveById(ally.explorer);
+          const isMe = req.auth.email === explorer.email;
+          if(!isMe) 
+          {
+            return next(HttpError.Forbidden());
           }
     
           ally = ally.toObject({ getters: false, virtuals: false });
@@ -56,6 +69,13 @@ class AlliesRoutes {
             a = AllyRepository.transform(a);
             return a;
           });
+
+          let explorer = await ExplorerRepository.retrieveById(idExplorer);
+          const isMe = req.auth.email === explorer.email;
+          if(!isMe) 
+          {
+            return next(HttpError.Forbidden());
+          }
     
           //retourne les allies
           res.status(200).json(allies);
@@ -80,6 +100,13 @@ class AlliesRoutes {
         if(allyData.explorer != undefined)
         {
           return res.status(409).json("Cet allié a déjà été capturé");
+        }
+
+        //Vérifie si le token correspond à l'explorateur trouvé
+        const isMe = req.auth.email === explorer.email;
+        if(!isMe) 
+        {
+          return next(HttpError.Forbidden());
         }
 
         //constantes et variables pour vérifier les élements du

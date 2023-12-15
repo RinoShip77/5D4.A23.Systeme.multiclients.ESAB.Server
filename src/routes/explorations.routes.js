@@ -24,11 +24,21 @@ class ExplorationsRoutes {
     try 
     {
       const idExploration = req.params.idExploration;
+      const idExplorer = req.params.idExplorer;
 
       let exploration = await ExplorationRepository.retrieveById(idExploration);
 
       if (!exploration) {
         return next(HttpError.NotFound(`L'exploration avec l'id "${idExploration}" n'existe pas!`));
+      }
+
+      let explorer = await ExplorerRepository.retrieveById(exploration.explorer);
+
+      //Vérifie si le token correspond à l'explorateur trouvé
+      const isMe = req.auth.email === explorer.email;
+      if(!isMe) 
+      {
+          return next(HttpError.Forbidden());
       }
 
       exploration = exploration.toObject({ getters: false, virtuals: false });
@@ -57,6 +67,15 @@ class ExplorationsRoutes {
         return e;
       });
 
+      let explorer = await ExplorerRepository.retrieveById(idExplorer);
+
+      //Vérifie si le token correspond à l'explorateur trouvé
+      const isMe = req.auth.email === explorer.email;
+      if(!isMe) 
+      {
+          return next(HttpError.Forbidden());
+      }
+
       //retourne les explorations
       res.status(200).json(explorations);
 
@@ -74,6 +93,14 @@ class ExplorationsRoutes {
 
       let url = process.env.PORTAL_URL + explorationKey;
       let explorationData;
+
+      //Vérifie si le token correspond à l'explorateur trouvé
+      let explorer = await ExplorerRepository.retrieveById(idExplorer);
+      const isMe = req.auth.email === explorer.email;
+      if(!isMe) 
+      {
+          return next(HttpError.Forbidden());
+      }
 
       //Appelle un api pour aller chercher une exploration
       await axios.get(url)
@@ -163,7 +190,6 @@ class ExplorationsRoutes {
       }
 
       // Ici je retrieve l'explorer pour modifier sa location
-      let explorer = await ExplorerRepository.retrieveById(idExplorer);
       explorer.location = exploration.destination;
 
       // Si des inox et des éléments sont présent dans l'exploration

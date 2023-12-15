@@ -17,7 +17,7 @@ class ExplorersRoutes {
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorateur
         router.post('/actions/login', this.login); // Connexion
         router.get('/actions/logout', authorizationJWT, this.logout); // Déconnexion, blacklist du token
-        router.get('/:idExplorer/leaderboards/:order', authorizationJWT, this.leaderboards); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
+        router.get('/:idExplorer/leaderboards/:order', authorizationJWT, this.leaderboards); // Retourne les explorateurs classé selon l'ordre demandé (Leaderboard)
         router.post('/actions/refreshToken', refreshJWT, this.refreshToken); // refresh des tokens
       }
 
@@ -60,7 +60,14 @@ class ExplorersRoutes {
 
         if (!explorer)
         {
-            return next(HttpError.NotFound(`Il n'y a pas d'explorateur avec le username :"${username}"`));
+            return next(HttpError.NotFound(`Il n'y a pas d'explorateur avec l'id' :"${idExplorer}"`));
+        }
+
+        //Vérifie si le token correspond à l'explorateur trouvé
+        const isMe = req.auth.email === explorer.email;
+        if(!isMe) 
+        {
+            return next(HttpError.Forbidden());
         }
     
         explorer = explorer.toObject({ getters: false, virtuals: false });
