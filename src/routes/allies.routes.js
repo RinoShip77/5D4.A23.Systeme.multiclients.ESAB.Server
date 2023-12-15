@@ -33,7 +33,7 @@ class AlliesRoutes {
           }
     
           ally = ally.toObject({ getters: false, virtuals: false });
-          // Pas besoin de transform
+          ally = AllyRepository.transform(ally);
     
           res.json(ally).status(200);
         } catch (error) {
