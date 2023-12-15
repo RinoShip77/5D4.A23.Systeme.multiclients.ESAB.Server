@@ -101,5 +101,6 @@ app.use('/explorers', ExplorersRoutes);
 
 
 app.use(errors);
+app.enable('trust proxy');
 
 export default app;
