@@ -2,13 +2,13 @@ import {Ally} from "../models/ally.model.js";
 
 class AllyRepository {
 
-    // Création d'une exploration
+    // Création d'un ally
     create(ally) 
     {
         return Ally.create(ally);
     }
 
-    // Permet de récupérer un ally à partir d'un id
+    // Permet de récupérer un ally à partir d'un idAlly
     retrieveById(idAlly) {
 
         const retrieveQuery = Ally.findById(idAlly);
@@ -16,6 +16,7 @@ class AllyRepository {
         return retrieveQuery;
     }
 
+    // Permet de récupérer les ally à partir d'un idExplorer
     retrieveAll(idExplorer)
     {
         const retrieveQuery = Ally.find({'explorer':{$in:idExplorer}});
@@ -26,8 +27,6 @@ class AllyRepository {
     transform(ally, transformOptions = {}) 
     {
 
-        //Peut-être plus tard
-        //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
         ally.href = `${process.env.BASE_URL}/explorers/${ally.explorer}/allies/${ally._id}`;
         delete ally._id;
         delete ally.__v;

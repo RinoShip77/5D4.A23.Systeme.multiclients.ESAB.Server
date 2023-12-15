@@ -50,12 +50,14 @@ class ExplorerRepository {
         }
     }
 
+    // Permet de récupérer tous les explorateurs
+    // Pas utilisé
     retrieveAll()
     {
         return Explorer.find();
     }
 
-    // Permet de récupérer un ally à partir d'un id
+    // Permet de récupérer un explorateur à partir d'un idExplorer
     retrieveById(idExplorer) {
 
         const retrieveQuery = Explorer.findById(idExplorer);
@@ -63,18 +65,24 @@ class ExplorerRepository {
         return retrieveQuery;
     }
 
+    // Permet de récupérer un explorateur à partir d'un username
     retrieveByUsername(email){
         let retrieveQuery = Explorer.findOne({'username':{$in:email}});
 
         return retrieveQuery;
     }
 
+    // Permet de récupérer un explorateur à partir d'un email
     retrieveByEmail(email){
         let retrieveQuery = Explorer.findOne({'email':{$in:email}});
 
         return retrieveQuery;
     }
 
+    // Va chercher les explorateurs et 
+    // Permet le tri du leaderboard selon la demande
+    // Tri parfaitement et retourne les 25 premiers pour l'order by inox
+    // Pour les autres, une autre fonction de tri est utilisée
     async retrieveOrderedBy(idExplorer, order)
     {
         const orderChoices = ["inox", "elements", "allies", "explorations"]
@@ -115,7 +123,7 @@ class ExplorerRepository {
 
     }
 
-    // Création d'un explorer
+    // Création d'un explorateur
     async create(explorer) {
 
         try {
@@ -128,7 +136,7 @@ class ExplorerRepository {
     }
     
 
-    // Permet de retirer les imformations sesnsibles d'un explorer et créer son href avant de le retourner
+    // Permet de retirer les informations sesnsibles d'un explorer et créer son href avant de le retourner
     transform(explorer, transformOptions = {}) {
 
         //Peut-être plus tard
@@ -151,7 +159,8 @@ class ExplorerRepository {
         return Explorer.findOneAndUpdate(filter, { $set: Object.assign(newExplorer) }, { new: true, runValidators: true });
     }
 
-
+    // Permet le tri du leaderboard lorsqu'il doit être trié par explorations, allies ou elements
+    // retourne les 25 premiers
     sortBy(leaderboards, order)
     {
         if(order == "explorations")

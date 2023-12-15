@@ -2,6 +2,7 @@ import {Exploration} from "../models/exploration.model.js";
 
 class ExplorationRepository {
 
+    // Permet de récupérer les explorations à partir d'un idExplorer
     retrieveAll(idExplorer)
     {
         const retrieveQuery = Exploration.find({'explorer':{$in:idExplorer}});
@@ -9,7 +10,7 @@ class ExplorationRepository {
         return retrieveQuery;
     }
 
-    // Permet de récupérer un ally à partir d'un id
+    // Permet de récupérer une exploration à partir d'un idExploration
     retrieveById(idExploration, idExplorer) {
 
         //const retrieveQuery = Exploration.find({$and: [ {'explorer': {$in:idExplorer}}, {'_id':{$in:idExploration}}]});
@@ -24,11 +25,10 @@ class ExplorationRepository {
         return Exploration.create(exploration);
     }
 
-    // Permet de retirer les imformations sesnsibles d'une exploration et créer son href avant de le retourner
-    // TODO: Vérifier si on a besoin
+    // Permet de retirer les imformations sesnsibles d'une exploration et créer ses href avant de le retourner
     transform(exploration, transformOptions = {}) {
 
-        //Peut-être plus tard
+        
         exploration.href = `${process.env.BASE_URL}/explorers/${exploration.explorer}/explorations/${exploration._id}`;
 
         if(exploration.ally != undefined)
@@ -45,12 +45,9 @@ class ExplorationRepository {
 
     }
 
-    // Permet de retirer les imformations sesnsibles d'une exploration et créer son href avant de le retourner
-    // TODO: Vérifier si on a besoin
+    // Permet de retirer les imformations sesnsibles pour être en mesure de la créer
     transformIntoExploration(explorationData, ally, transformOptions = {}) {
 
-        //Peut-être plus tard
-        //exploration.href = `${process.env.BASE_URL}/explorations/${exploration._id}`;
 
         delete explorationData.ally;
 

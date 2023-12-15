@@ -18,21 +18,13 @@ class ExplorationsRoutes {
     router.post('/:idExplorer/explorations', authorizationJWT, this.post); //Création d'une exploration à l'aide d'une clé de portal
   }
 
-  // Récupérer une exploration à partir d'"un id d'exploration
-  async getOne(req, res, next) {
-    try {
-      //   Peut-être mettre des options plus tard
-      //   const retrieveOptions = {};
-      //   if (req.query.embed && req.query.embed === '') {
-      //     retrieveOptions. = true;
-      //   }
-
-
-      //const idExplorer = req.params.idExploration;
+  // Récupérer une exploration à partir d'un id d'exploration
+  async getOne(req, res, next) 
+  {
+    try 
+    {
       const idExploration = req.params.idExploration;
 
-      //À Changer, (chercher dans les explorations de l'explorer)
-      //let exploration = await ExplorationRepository.retrieveById(idExploration, idExplorer);
       let exploration = await ExplorationRepository.retrieveById(idExploration);
 
       if (!exploration) {
@@ -42,36 +34,22 @@ class ExplorationsRoutes {
       exploration = exploration.toObject({ getters: false, virtuals: false });
       exploration = ExplorationRepository.transform(exploration);
 
-      // Peut-être besoin de transform plus tard
-      // exploration = explorationRepository.transform(exploration, retrieveOptions);
-
-      //return location
-
       res.json(exploration).status(200);
-    } catch (error) {
+    } 
+    catch (error) 
+    {
       return next(error);
     }
   }
 
   // Récupérer les exporations d'un user
-  async getAll(req, res, next) {
-
-    //Pour la pagination (peut-être)
-    //const retrieveOptions = {
-    //  skip: req.skip,
-    //  limit: req.query.limit
-    //};
-
-    try {
-
+  async getAll(req, res, next) 
+  {
+    try 
+    {
       const idExplorer = req.params.idExplorer;
 
       let explorations = await ExplorationRepository.retrieveAll(idExplorer);
-
-      //Pour la pagination (peut-être)
-      //const pageCount = Math.ceil(itemsCount / req.query.limit);
-      //const hasNextPage = paginate.hasNextPages(req)(pageCount);
-      //const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
 
       explorations = explorations.map(e => {
         e = e.toObject({ getters: false, virtuals: false });
@@ -79,7 +57,7 @@ class ExplorationsRoutes {
         return e;
       });
 
-      //retourne les allies
+      //retourne les explorations
       res.status(200).json(explorations);
 
     } catch (error) {
@@ -97,7 +75,7 @@ class ExplorationsRoutes {
       let url = process.env.PORTAL_URL + explorationKey;
       let explorationData;
 
-      //Appelle le serveur pour aller chercher une exploration
+      //Appelle un api pour aller chercher une exploration
       await axios.get(url)
         .then(res => {
           explorationData = res.data;
@@ -106,10 +84,11 @@ class ExplorationsRoutes {
           return next(err);
         });
 
+      //Prend le ally de l'Exploration retournée par l'api
       let allyData;
       allyData = explorationData.ally;
       
-      //Si on allié est présent dans l'exploration
+      //Si on allié est présent dans l'exploration, on le crée
       let ally;
       let idAlly;
       if(allyData)
@@ -120,9 +99,10 @@ class ExplorationsRoutes {
         ally = allyRepository.transform(ally);
       }
 
-      //Transformer l'exploration pour la créer dans les données de l'allié
+      //Transformer l'exploration pour plus tard la créer
       let explorationTransformed = await ExplorationRepository.transformIntoExploration(explorationData, ally);
 
+      //Ajoute l'explorateur et l'allié à l'exploration
       explorationTransformed.explorer = idExplorer;
       explorationTransformed.ally = idAlly;
 
@@ -130,9 +110,6 @@ class ExplorationsRoutes {
       let exploration = await ExplorationRepository.create(explorationTransformed);
       exploration = exploration.toObject({getters:false, virtuals:false});
       exploration = ExplorationRepository.transform(exploration);
-
-      //Ajoute le id de l'ally à l'exploration qui sera plus tard mis-à-jour
-      //Suite à plusieurs autres transformations
 
       //Lance un random pour déterminer si on renvoit un bonus chest ou non
       let bonusChest;
@@ -179,6 +156,7 @@ class ExplorationsRoutes {
       exploration.chance = randomChanceChest;
       exploration.bonusChest = bonusChest;
 
+      //Ajoute le Ally à l'information envoyée au user.
       if(ally)
       {
         exploration.ally = ally;

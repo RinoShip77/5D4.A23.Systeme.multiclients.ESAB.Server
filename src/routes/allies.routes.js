@@ -12,22 +12,19 @@ class AlliesRoutes {
     constructor() {
         router.get('/:idExplorer/allies', authorizationJWT, this.getAll); //Trouver les alliés d'un explorateur
         router.get('/:idExplorer/allies/:idAlly', authorizationJWT, this.getOne); //Trouver un allié précis d'un explorateur
-        router.post('/:idExplorer/allies/:idAlly', this.post); //Création d'un ally (capture de l'ally de l'exploration)
+        router.post('/:idExplorer/allies/:idAlly', authorizationJWT, this.post); //Création d'un ally (capture de l'ally de l'idAlly)
       }
     
-    // Récupérer une exploration à partir d'"un id d'exploration
-    async getOne(req, res, next) {
-        try {
-        //   Peut-être mettre des options plus tard
-        //   const retrieveOptions = {};
-        //   if (req.query.embed && req.query.embed === '') {
-        //     retrieveOptions. = true;
-        //   }
+    // Récupérer un ally à partir d'un id d'un ally
+    async getOne(req, res, next) 
+    {
+        try 
+        {
     
           const idExplorer = req.params.idExplorer;
           const idAlly = req.params.idAlly;
     
-          //À Changer (prendre en compte le idExplorer)
+  
           let ally = await AllyRepository.retrieveById(idAlly);
     
           if (!ally)
@@ -35,9 +32,8 @@ class AlliesRoutes {
             return next(HttpError.NotFound(`l'ally avec l'id "${idAlly}" n'existe pas!`));
           }
     
-          ally = ally.toObject({ getters: false, virtuals: true });
+          ally = ally.toObject({ getters: false, virtuals: false });
           // Pas besoin de transform
-          // ally = AllyRepository.transform(ally, retrieveOptions);
     
           res.json(ally).status(200);
         } catch (error) {
@@ -45,24 +41,15 @@ class AlliesRoutes {
         }
     }  
     
-    // Récupérer les exporations d'un user
-    async getAll(req, res, next) {
-        //Pour la pagination
-        //const retrieveOptions = {
-        //  skip: req.skip,
-        //  limit: req.query.limit
-        //};
-
-        try {
+    // Récupérer les allies d'un user
+    async getAll(req, res, next) 
+    {
+        try 
+        {
           
           const idExplorer = req.params.idExplorer;
     
           let allies = await AllyRepository.retrieveAll(idExplorer);
-
-          //Pour la pagination
-          //const pageCount = Math.ceil(itemsCount / req.query.limit);
-          //const hasNextPage = paginate.hasNextPages(req)(pageCount);
-          //const pageArray = paginate.getArrayPages(req)(3, pageCount, req.query.page);
 
           allies = allies.map(a => {
             a = a.toObject({getters:false, virtuals:false});
@@ -96,7 +83,7 @@ class AlliesRoutes {
         }
 
         //constantes et variables pour vérifier les élements du
-        //ally et de l'explorer, pour être en mesure de payer
+        //ally et de l'explorateur, pour être en mesure de payer
         const elementsAlly = allyData.kernel;
         const elementsExplorer = explorer.inventory.elements;
 

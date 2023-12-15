@@ -17,22 +17,27 @@ class ExplorersRoutes {
         router.post('/', explorerValidators.complete(), validator, this.post); // Ajout d'un explorateur
         router.post('/actions/login', this.login); // Connexion
         router.get('/actions/logout', authorizationJWT, this.logout); // Déconnexion, blacklist du token
-        router.get('/:idExplorer/leaderboards/:order', this.leaderboards); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
+        router.get('/:idExplorer/leaderboards/:order', authorizationJWT, this.leaderboards); // Retourne les jour classé selon l'ordre demandé (Leaderboard)
         router.post('/actions/refreshToken', refreshJWT, this.refreshToken); // refresh des tokens
       }
 
     // Route pour la connexion
-    async login(req, res, next) {
+    async login(req, res, next) 
+    {
         
         const { email, username, password } = req.body;
 
-        if((email && username) || email === "" || username === "") {
+        //L'utilisateur pour soit se connecté avec un email ou un username, pas les 2
+        if((email && username) || email === "" || username === "") 
+        {
             return next(HttpError.BadRequest(''));
         }
 
         const result = await ExplorerRepository.login(email, username, password);
 
-        if(result.explorer) {
+        //Si un explorateur est trouvé
+        if(result.explorer) 
+        {
             // Nous sommes connectés
             let explorer = result.explorer.toObject({getters:false, virtuals:false});
             explorer = ExplorerRepository.transform(explorer);
@@ -44,9 +49,11 @@ class ExplorersRoutes {
         }
     }
 
-    // Route pour la connexion
-    async getOne(req, res, next) {
-        try {
+    // Route pour retrouvé les infos d'un explorateur
+    async getOne(req, res, next) 
+    {
+        try 
+        {
         const idExplorer = req.params.idExplorer;
 
         let explorer = await ExplorerRepository.retrieveById(idExplorer);
@@ -56,17 +63,19 @@ class ExplorersRoutes {
             return next(HttpError.NotFound(`Il n'y a pas d'explorateur avec le username :"${username}"`));
         }
     
-        explorer = explorer.toObject({ getters: false, virtuals: true });
+        explorer = explorer.toObject({ getters: false, virtuals: false });
         explorer = ExplorerRepository.transform(explorer);
 
         res.json(explorer).status(200);
-        } catch (err)
+        } 
+        catch (err)
         {
             return next(err);
         }
     }
 
     // Déconnexion d'un explorer (Blacklist de son token et redirection vers la page de connexion)
+    // Vérif de blacklist ne fonctionne pas donc n'est pas utilisé par les applications
     async logout(req, res, next) {
 
         try
@@ -77,20 +86,19 @@ class ExplorersRoutes {
             await BlacklistedJWTRepository.create(tokenToInvalidate);
     
             res.status(200).json({ message: 'Déconnecté avec succès!' });
-            //res.redirect('/login'); // TODO: !!! Redirection au Login à VALIDER !!!
         } catch(err)
         {
             return next(err);
         }
     }
 
-    // Création d'un explorer
+    // Création d'un explorateur
     async post(req, res, next) {
         
         const newExplorer = req.body;
 
         //Valide s'il y a déjà un user avec ce email ou ce username
-        /*let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
+        let emailSearch = await ExplorerRepository.retrieveByEmail(newExplorer.email);
         let usernameSearch = await ExplorerRepository.retrieveByUsername(newExplorer.username);
 
         if(emailSearch.length)
@@ -101,22 +109,26 @@ class ExplorersRoutes {
         if(usernameSearch.length)
         {
             return next(HttpError.Conflict("Le username existe déjà dans la base de données."));
-        }*/
+        }
 
         //Si la requete est vide
         if(Object.keys(newExplorer).length === 0) 
-        {//On retourne une erreur BadRequest
+        {
+            //On retourne une erreur BadRequest
             return next(HttpError.BadRequest('Le client ne peut pas contenir aucune donnée'));
         }
 
-        try {
+        try 
+        {
             let explorer = await ExplorerRepository.create(newExplorer);
  
             explorer = explorer.toObject({getters:false, virtuals:false});
             explorer = ExplorerRepository.transform(explorer);
             const tokens = ExplorerRepository.generateJWT(explorer.email);
             res.status(201).json({explorer, tokens});
-        } catch(err) {
+        } 
+        catch(err) 
+        {
             return next(err);
         }
     }
@@ -130,108 +142,113 @@ class ExplorersRoutes {
 
         try
         {
-        if(orderChoices.includes(order))
-        {
-            switch(order)
+            if(orderChoices.includes(order))
             {
-                case "inox" :
+                switch(order)
                 {
-                    //Retourne les 25 premiers selon leur nombre d'inox
-                    //+ l'explorateur qui fait la demande
-                    let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
-                    
-                    //Populate et transforme chacun des explorateurs
-                    leaderboards = leaderboards.map(l => 
+                    case "inox" :
+                    {
+                        //Retourne les 25 premiers selon leur nombre d'inox
+                        //+ l'explorateur qui fait la demande
+                        let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+                        
+                        //Populate et transforme chacun des explorateurs
+                        leaderboards = leaderboards.map(l => 
+                            {
+                                l = l.toObject({ getters: false, virtuals: false });
+                                l = ExplorerRepository.transform(l);
+                                return l;
+                            });
+        
+                        //Populate et transforme l'explorateur qui fait la demande
+                        explorer = explorer.toObject({getters:false, virtuals:false});
+                        explorer = ExplorerRepository.transform(explorer);
+
+                        //Un objet top25 et un objet (explorateur qui envois la requête)
+                        return res.status(200).json({"top25" : leaderboards, "you" : explorer});
+                    }
+                    case "elements" :
+                    {
+                        //Retourne les 25 premiers selon leur nombre d'éléments
+                        //+ l'explorateur qui fait la demande
+                        let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+
+                        //Populate et transforme chacun des explorateurs
+                        leaderboards = leaderboards.map(l => 
+                            {
+                                l = l.toObject({ getters: false, virtuals: false });
+                                l = ExplorerRepository.transform(l);
+                                return l;
+                            });
+        
+                        //Populate et transforme l'explorateur qui fait la demande
+                        explorer = explorer.toObject({getters:false, virtuals:false});
+                        explorer = ExplorerRepository.transform(explorer);
+
+                        //Order tous le leaderboard par le nombre d'éléments en inventaire
+                        //et retourne les 25 premiers
+                        leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
+
+                        //Un objet top25 et un objet (explorateur qui envois la requête)
+                        return res.status(200).json({"top25" : leaderboards, "you" : explorer});
+                    }
+                    case "allies" :
+                    {
+                        //va chercher les explorateurs
+                        //+ l'explorateur qui fait la demande
+                        let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+
+                        //Populate et transforme chacun des explorateurs
+                        leaderboards = leaderboards.map(l => 
                         {
-                            l = l.toObject({ getters: false, virtuals: false });
+                            l = l.toObject({ getters: true, virtuals: true });
                             l = ExplorerRepository.transform(l);
                             return l;
                         });
-    
-                    //Populate et transforme l'explorateur qui fait la demande
-                    explorer = explorer.toObject({getters:false, virtuals:false});
-                    explorer = ExplorerRepository.transform(explorer);
 
-                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
-                }
-                case "elements" :
-                {
-                    //Retourne les 25 premiers selon leur nombre d'éléments
-                    //+ l'explorateur qui fait la demande
-                    let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+                        //Populate et transforme l'explorateur qui fait la demande
+                        explorer = explorer.toObject({getters:true, virtuals:true});
+                        explorer = ExplorerRepository.transform(explorer);
 
-                    //Populate et transforme chacun des explorateurs
-                    leaderboards = leaderboards.map(l => 
+                        //Order tous le leaderboard par le nombre d'explorations
+                        //et retourne les 25 premiers
+                        leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
+                        
+                        //Un objet top25 et un objet (explorateur qui envois la requête)
+                        return res.status(200).json({"top25" : leaderboards, "you" : explorer});
+                    }
+                    case "explorations" :
+                    {
+                        //va chercher les explorateurs
+                        //+ l'explorateur qui fait la demande
+                        let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+
+                        //Populate et transforme chacun des explorateurs
+                        leaderboards = leaderboards.map(l => 
                         {
-                            l = l.toObject({ getters: false, virtuals: false });
+                            l = l.toObject({ getters: false, virtuals: true });
                             l = ExplorerRepository.transform(l);
                             return l;
                         });
-    
-                    //Populate et transforme l'explorateur qui fait la demande
-                    explorer = explorer.toObject({getters:false, virtuals:false});
-                    explorer = ExplorerRepository.transform(explorer);
 
-                    //Order tous le leaderboard par le nombre d'éléments en inventaire
-                    //et retourne les 25 premiers
-                    leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
+                        //Populate et transforme l'explorateur qui fait la demande
+                        explorer = explorer.toObject({getters:false, virtuals:true});
+                        explorer = ExplorerRepository.transform(explorer);
 
-                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
-                }
-                case "allies" :
-                {
-                    //va chercher les explorateurs
-                    //+ l'explorateur qui fait la demande
-                    let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
+                        //Order tous le leaderboard par le nombre d'explorations
+                        //et retourne les 25 premiers
+                        leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
 
-                    //Populate et transforme chacun des explorateurs
-                    leaderboards = leaderboards.map(l => 
-                    {
-                        l = l.toObject({ getters: true, virtuals: true });
-                        l = ExplorerRepository.transform(l);
-                        return l;
-                    });
-
-                    //Populate et transforme l'explorateur qui fait la demande
-                    explorer = explorer.toObject({getters:true, virtuals:true});
-                    explorer = ExplorerRepository.transform(explorer);
-
-                    //Order tous le leaderboard par le nombre d'explorations
-                    //et retourne les 25 premiers
-                    leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
-                    
-                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
-                }
-                case "explorations" :
-                {
-                    //va chercher les explorateurs
-                    //+ l'explorateur qui fait la demande
-                    let [leaderboards, explorer] = await ExplorerRepository.retrieveOrderedBy(idExplorer, order);
-
-                    //Populate et transforme chacun des explorateurs
-                    leaderboards = leaderboards.map(l => 
-                    {
-                        l = l.toObject({ getters: false, virtuals: true });
-                        l = ExplorerRepository.transform(l);
-                        return l;
-                    });
-
-                    //Populate et transforme l'explorateur qui fait la demande
-                    explorer = explorer.toObject({getters:false, virtuals:true});
-                    explorer = ExplorerRepository.transform(explorer);
-
-                    //Order tous le leaderboard par le nombre d'explorations
-                    //et retourne les 25 premiers
-                    leaderboards = await ExplorerRepository.sortBy(leaderboards, order);
-
-                    return res.status(200).json({"top25" : leaderboards, "you" : explorer});
+                        //Un objet top25 et un objet (explorateur qui envois la requête)
+                        return res.status(200).json({"top25" : leaderboards, "you" : explorer});
+                    }
                 }
             }
-        }
 
         //Erreur, absence d'un ordre de tri ou mauvais ordre de tri
         return res.status(400).json("Mauvais ordre de tri");
-        } catch(err)
+        } 
+        catch(err)
         {
             return next(err);
         }
